@@ -1,8 +1,9 @@
 use std::collections::HashMap;
 use crate::binary_bitmap::BinaryBitmap;
+use crate::decode_hint_type::DecodeHintType;
 
-pub trait Reader {
-    fn decode(&mut self, image: BinaryBitmap);
-    fn decode_with_hint(&mut self, image: BinaryBitmap, hints: HashMap<u8, u8>);
+pub trait Reader<'a> {
+    fn decode(&'a mut self, image: &'a BinaryBitmap);
+    fn decode_with_hint(&'a mut self, image: &'a BinaryBitmap, hints: &'a HashMap<DecodeHintType, u8>);
     fn reset(&mut self);
 }
