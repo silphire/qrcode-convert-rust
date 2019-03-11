@@ -10,4 +10,9 @@ impl BinaryBitmap {
         return 0;
         // TODO implement
     }
+
+    pub fn get_black_matrix(&self) -> &BitMatrix {
+        return &self.matrix;
+        // TODO implement
+    }
 }
