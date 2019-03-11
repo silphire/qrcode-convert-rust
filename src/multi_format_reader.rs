@@ -12,7 +12,7 @@ pub struct MultiFormatReader<'a> {
 impl<'a> MultiFormatReader<'a> {
     fn decode_internal(&'a mut self, image: &'a BinaryBitmap) {
         for reader in &mut self.readers {
-            reader.decode_with_hint(image, self.hints);
+            reader.decode(image, Some(self.hints));
         }
     }
 
@@ -25,12 +25,12 @@ impl<'a> MultiFormatReader<'a> {
 }
 
 impl<'a> Reader<'a> for MultiFormatReader<'a> {
-    fn decode(&'a mut self, image: &'a BinaryBitmap) {
-        self.decode_internal(image);
-    }
-
-    fn decode_with_hint(&'a mut self, image: &'a BinaryBitmap, hints: &'a HashMap<DecodeHintType, u8>) {
-        self.set_hints(hints).decode_internal(image);
+    fn decode(&'a mut self, image: &'a BinaryBitmap, hints: Option<&'a HashMap<DecodeHintType, u8>>) {
+        if hints.is_none() {
+            self.set_hints(hints.unwrap()).decode_internal(image);
+        } else {
+            self.set_hints(hints.unwrap());
+        }
     }
 
     fn reset(&mut self) {

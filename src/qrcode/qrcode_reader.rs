@@ -9,14 +9,9 @@ pub struct QRCodeReader {
 }
 
 impl<'a> Reader<'a> for QRCodeReader {
-    fn decode(&mut self, image: &BinaryBitmap) {
-
+    fn decode(&mut self, image: &BinaryBitmap, hints: Option<&HashMap<DecodeHintType, u8>>) {
     }
-
-    fn decode_with_hint(&mut self, image: &BinaryBitmap, hints: &HashMap<DecodeHintType, u8>) {
-
-    }
-
+    
     fn reset(&mut self) {
 
     }
