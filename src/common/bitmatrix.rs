@@ -30,6 +30,26 @@ impl BitMatrix {
 
     //pub fn parse_from_str() -> BitMatrix {
     //}
+
+    pub fn get(&self, x: usize, y: usize) -> bool {
+        let offset = y * self.row_size + (x / 32);
+        return ((self.bits[offset] >> (x & 0x1f)) & 1) != 0;
+    }
+
+    pub fn set(&mut self, x: usize, y: usize) {
+        let offset = y * self.row_size + (x / 32);
+        self.bits[offset] |= 1 << (x & 0x1f);
+    }
+
+    pub fn unset(&mut self, x: usize, y: usize) {
+        let offset = y * self.row_size + (x / 32);
+        self.bits[offset] &= !(1 << (x & 0x1f));
+    }
+
+    pub fn flip(&mut self, x: usize, y: usize) {
+        let offset = y * self.row_size + (x / 32);
+        self.bits[offset] ^= 1 << (x & 0x1f);
+    }
 }
 
 #[test]
