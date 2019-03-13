@@ -70,11 +70,17 @@ impl BitMatrix {
 
     pub fn get_row(&mut self, y: usize, row: Option<BitArray>) -> BitArray {
         let mut new_row: BitArray;
-        if row.is_none() || row.unwrap().get_size() < self.width {
+        
+        if row.is_none() {
             new_row = BitArray::new_with_size(self.width);
         } else {
-            new_row = row.unwrap();
-            new_row.clear();
+            let raw_row = row.unwrap();
+            if raw_row.get_size() < self.width {
+                new_row = BitArray::new_with_size(self.width);
+            } else {
+                new_row = raw_row;
+                new_row.clear();
+            }
         }
         let offset = y * self.row_size;
         for x in 0..self.row_size {
@@ -92,8 +98,12 @@ impl BitMatrix {
         ;
     }
 
-    pub fn get_enclosing_rectangle(&mut self) {
+    pub fn get_enclosing_rectangle(&self) {
         ;
+    }
+
+    pub fn get_top_left_on_bit(&self) {
+
     }
 }
 

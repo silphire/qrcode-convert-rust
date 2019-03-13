@@ -24,6 +24,8 @@ impl<'a> Reader<'a> for QRCodeReader {
 
 impl QRCodeReader {
     pub fn extract_pure_bits(&self, image: &BitMatrix) -> BitMatrix {
+        let left_top_black = image.get_top_left_on_bit();
+
         // TODO implement
         return BitMatrix {
             bits: vec![],
