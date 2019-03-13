@@ -12,7 +12,7 @@ impl BitArray {
         }
     }
 
-    pub fn new_width_size(size: usize) -> BitArray {
+    pub fn new_with_size(size: usize) -> BitArray {
         return BitArray {
             bits: vec![0; (size + 31) / 32],
             size: size,
