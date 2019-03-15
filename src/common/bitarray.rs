@@ -203,6 +203,10 @@ impl BitArray {
         }
     }
 
+    pub fn get_bit_array(&self) -> &Vec<i32> {
+        return &self.bits;
+    }
+
     pub fn reverse(&mut self) {
         let mut new_bits = vec![0; self.bits.len()];
 
