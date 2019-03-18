@@ -8,4 +8,8 @@ impl ReedSolomonDecoder {
             generic_gf: 0,
         }
     }
+
+    pub fn decode(&mut self, received: Vec<i32>, two_s: usize) {
+        // TODO implement
+    }
 }
