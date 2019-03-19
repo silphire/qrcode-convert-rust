@@ -1,4 +1,5 @@
 use crate::common::bitmatrix::BitMatrix;
+use crate::qrcode::decoder::format_information::FormatInformation;
 
 pub struct BitMatrixParser {
     pub bitmatrix: BitMatrix,
@@ -13,5 +14,9 @@ impl BitMatrixParser {
             bitmatrix: bitmatrix,
             mirror: false,
         }
+    }
+
+    pub fn read_format_information(&self) -> FormatInformation {
+        return FormatInformation{};
     }
 }
