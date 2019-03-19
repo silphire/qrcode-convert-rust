@@ -9,7 +9,7 @@ impl ReedSolomonDecoder {
         }
     }
 
-    pub fn decode(&mut self, received: Vec<i32>, two_s: usize) {
+    pub fn decode(&mut self, received: &Vec<i32>, two_s: usize) {
         // TODO implement
     }
 }
