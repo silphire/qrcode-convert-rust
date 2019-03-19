@@ -54,7 +54,18 @@ impl BitMatrix {
     }
 
     pub fn xor(&mut self, mask: &BitMatrix) {
-        ;
+        if self.width != mask.width || self.height != mask.height || self.row_size != mask.row_size {
+            // error;
+        }
+
+        let mut row_array = BitArray::new_with_size(self.width);
+        for y in 0..self.height {
+            let offset = y * self.row_size;
+            let row = mask.get_row(y, Some(&mut row_array)).get_bit_array();
+            for x in 0..self.row_size {
+                self.bits[offset + x] ^= row[x];
+            }
+        }
     }
 
     pub fn clear(&mut self) {
@@ -65,18 +76,32 @@ impl BitMatrix {
     }
 
     pub fn set_region(&mut self, left: usize, top: usize, width: usize, height: usize) {
-        ;
+        if height < 1 || width < 1 {
+            // illegal argument
+        }
+
+        let right = left + width;
+        let bottom = top + height;
+        if bottom > self.height || right > self.width {
+            // illegal argument
+        }
+        for y in top..bottom {
+            let offset = y * self.row_size;
+            for x in left..right {
+                self.bits[offset + (x / 32)] |= 1 << (x & 0x1f);
+            }
+        }
     }
 
-    pub fn get_row(&mut self, y: usize, row: Option<BitArray>) -> BitArray {
-        let mut new_row: BitArray;
+    pub fn get_row<'a>(&self, y: usize, row: Option<&'a mut BitArray>) -> &'a mut BitArray {
+        let new_row: &mut BitArray;
         
         if row.is_none() {
-            new_row = BitArray::new_with_size(self.width);
+            new_row = &mut BitArray::new_with_size(self.width);
         } else {
             let raw_row = row.unwrap();
             if raw_row.get_size() < self.width {
-                new_row = BitArray::new_with_size(self.width);
+                new_row = &mut BitArray::new_with_size(self.width);
             } else {
                 new_row = raw_row;
                 new_row.clear();
@@ -95,15 +120,108 @@ impl BitMatrix {
     }
 
     pub fn rotate_180(&mut self) {
-        ;
+        let mut top_row = &mut BitArray::new_with_size(self.width);
+        let mut bottom_row = &mut BitArray::new_with_size(self.width);
+        for i in 0..((self.height + 1) / 2) {
+            top_row = self.get_row(i, Some(top_row));
+            bottom_row = self.get_row(self.height - 1 - i, Some(bottom_row));
+            top_row.reverse();
+            bottom_row.reverse();
+            self.set_row(i, bottom_row);
+            self.set_row(self.height - 1 - i, top_row);
+        }
     }
 
-    pub fn get_enclosing_rectangle(&self) {
-        ;
+    pub fn get_enclosing_rectangle(&self) -> Vec<usize> {
+        let mut left = self.width;
+        let mut top = self.height;
+        let mut right = 0;
+        let mut bottom = 0;
+
+        for y in 0..self.height {
+            for x32 in 0..self.row_size {
+                let the_bits = self.bits[y * self.row_size + x32];
+                if the_bits != 0 {
+                    if y < top {
+                        top = y;
+                    }
+                    if y > bottom {
+                        bottom = y;
+                    }
+                    if x32 * 32 < left {
+                        let mut bit = 0;
+                        while (the_bits << (31 - bit)) == 0 {
+                            bit += 1;
+                        }
+                        if (x32 * 32 + bit) < left {
+                            left = x32 * 32 + bit;
+                        }
+                    }
+
+                    if x32 * 32 + 31 > right {
+                        let mut bit = 31;
+                        while (the_bits >> bit) == 0 {
+                            bit -= 1;
+                        }
+                        if (x32 * 32 + bit) > right {
+                            right = x32 * 32 + bit;
+                        }
+                    }
+                }
+            }
+        }
+
+        if right < left || bottom < top {
+            return vec![];
+        }
+
+        return vec![left, top, right - left + 1, bottom - top + 1];
     }
 
-    pub fn get_top_left_on_bit(&self) {
+    pub fn get_top_left_on_bit(&self) -> Vec<usize> {
+        let mut bits_offset = 0;
+        
+        while bits_offset < self.bits.len() && self.bits[bits_offset] == 0 {
+            bits_offset += 1;
+        }
+        if bits_offset == self.bits.len() {
+            return vec![];
+        }
 
+        let y = bits_offset / self.row_size;
+        let mut x = (bits_offset % self.row_size) * 32;
+
+        let the_bits = self.bits[bits_offset];
+        let mut bit = 0;
+        while (the_bits << (31 - bit)) == 0 {
+            bit += 1;
+        }
+        x += bit;
+
+        return vec![x, y];
+    }
+
+    pub fn get_bottom_right_on_bit(&self) -> Vec<usize> {
+        let mut bits_offset = self.bits.len() - 1;
+        while bits_offset >= 0 && self.bits[bits_offset] == 0 {
+            if bits_offset == 0 {
+                return vec![];
+            }
+
+            bits_offset -= 1;
+        }
+
+        let y = bits_offset / self.row_size;
+        let mut x = bits_offset % self.row_size * 32;
+
+        let the_bits = self.bits[bits_offset];
+        let mut bit = 31;
+        while the_bits >> bit == 0 {
+            bit -= 1;
+        }
+        x += bit;
+
+        return vec![x, y];
     }
 }
 
