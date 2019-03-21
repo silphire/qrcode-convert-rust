@@ -16,12 +16,12 @@ impl MonochromeRectangleDetector {
         let delta_y = std::cmp::max(1, height / MAX_MODULES * 8) as isize;
         let delta_x = std::cmp::max(1, width / MAX_MODULES * 8) as isize;
 
-        let top = 0;
-        let bottom = height;
-        let left = 0;
-        let right = width;
+        let mut top = 0;
+        let mut bottom = height;
+        let mut left = 0;
+        let mut right = width;
 
-        let point_a: ResultPoint = self.find_corner_from_center(
+        let mut point_a: ResultPoint = self.find_corner_from_center(
             half_width,
             0,
             left,
@@ -32,8 +32,60 @@ impl MonochromeRectangleDetector {
             bottom,
             half_width / 2
         )?;
+        top = (point_a.y as usize) - 1;
 
-        return Some(vec![point_a]);
+        let point_b: ResultPoint = self.find_corner_from_center(
+            half_width,
+            -delta_x,
+            left,
+            right,
+            half_height,
+            0,
+            top,
+            bottom,
+            half_height / 2
+        )?;
+        left = (point_b.x as usize) - 1;
+
+        let point_c: ResultPoint = self.find_corner_from_center(
+            half_width,
+            delta_x,
+            left,
+            right,
+            half_height,
+            0,
+            top,
+            bottom,
+            half_height / 2
+        )?;
+        right = (point_c.x as usize) + 1;
+
+        let point_d: ResultPoint = self.find_corner_from_center(
+            half_width,
+            0,
+            left,
+            right,
+            half_height,
+            delta_y,
+            top,
+            bottom,
+            half_width / 2
+        )?;
+        bottom = (point_d.y as usize) + 1;
+
+        point_a = self.find_corner_from_center(
+            half_width,
+            0,
+            left,
+            right,
+            half_height,
+            -delta_y,
+            top,
+            bottom,
+            half_width / 4
+        )?;
+
+        return Some(vec![point_a, point_b, point_c, point_d]);
     }
 
     fn find_corner_from_center(
