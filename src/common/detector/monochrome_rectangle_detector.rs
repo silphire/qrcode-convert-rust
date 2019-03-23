@@ -116,7 +116,12 @@ impl MonochromeRectangleDetector {
 
         let start = center;
         while start >= min_dim {
-            ;
+            if horizontal && self.image.get(start, fixed_dimension) || !horizontal && self.image.get(fixed_dimension, start) {
+                start += 1;
+            } else {
+                let white_run_start = start;
+                start -= 1;
+            }
         }
         start += 1;
 
