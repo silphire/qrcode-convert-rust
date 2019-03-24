@@ -100,6 +100,7 @@ impl MonochromeRectangleDetector {
         bottom: usize,
         max_white_run: usize
     ) -> Option<ResultPoint> {
+        for let 
 
         return None;
     }
@@ -116,23 +117,46 @@ impl MonochromeRectangleDetector {
 
         let start = center;
         while start >= min_dim {
-            if horizontal && self.image.get(start, fixed_dimension) || !horizontal && self.image.get(fixed_dimension, start) {
+            if if horizontal { self.image.get(start, fixed_dimension) } else { self.image.get(fixed_dimension, start) } {
                 start += 1;
             } else {
                 let white_run_start = start;
                 start -= 1;
+                while start >= min_dim && !if horizontal { self.image.get(start, fixed_dimension) } else { self.image.get(fixed_dimension, start)} {
+                    start -= 1;
+                }
+
+                let white_run_size = white_run_start - start;
+                if start < min_dim || white_run_size > max_white_run {
+                    start = white_run_start;
+                    break;
+                }
             }
         }
         start += 1;
 
         let end = center;
         while end < max_dim {
-            ;
+            if if horizontal { self.image.get(end, fixed_dimension)}  else {self.image.get(fixed_dimension, end)} {
+                end += 1;
+            } else {
+                let white_run_start = end;
+                end += 1;
+                while end < max_dim && !if horizontal { self.image.get(end, fixed_dimension)} else {self.image.get(fixed_dimension, end)} {
+                    end += 1;
+                }
+
+                let white_run_size = end - white_run_start;
+                if end >= max_dim || white_run_size > max_white_run {
+                    end = white_run_start;
+                    break;
+                }
+            }
         }
         end -= 1;
 
         if end > start {
-            return Some(vec![]);
+            return Some(vec![start, end]);
         } else {
             return None;
         }
