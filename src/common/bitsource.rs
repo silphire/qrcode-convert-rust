@@ -1,7 +1,7 @@
 pub struct BitSource {
     pub bytes: Vec<u8>,
-    pub byte_offset: usize,
-    pub bit_offset: usize,
+    pub byte_offset: isize,
+    pub bit_offset: isize,
 }
 
 impl BitSource {

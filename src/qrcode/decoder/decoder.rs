@@ -23,10 +23,10 @@ impl Decoder {
     }
 
     pub fn decode_with_parser_and_hint(&mut self, parser: &BitMatrixParser, hints: &HashMap<DecodeHintType, u8>) {
-
+        // TODO implement
     }
 
-    fn correct_errors(&mut self, codeword_bytes: &mut Vec<u8>, num_data_codewords: usize) {
+    fn correct_errors(&mut self, codeword_bytes: &mut Vec<u8>, num_data_codewords: isize) {
         let num_codewords = codeword_bytes.len();
         let mut codewords_ints: Vec<i32> = vec![];
 
@@ -34,7 +34,7 @@ impl Decoder {
             codewords_ints[i] = (codeword_bytes[i] & 0xFF) as i32;
         }
 
-        self.rs_decoder.decode(&codewords_ints, codeword_bytes.len() - num_data_codewords);
+        self.rs_decoder.decode(&codewords_ints, codeword_bytes.len() as isize - num_data_codewords);
 
         for i in 0..num_codewords {
             codeword_bytes[i] = codewords_ints[i] as u8;

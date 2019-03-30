@@ -41,7 +41,7 @@ impl QRCodeReader {
         };
     }
 
-    fn module_size(left_top_black: &Vec<usize>, image: &BitMatrix) -> f64 {
+    fn module_size(left_top_black: &Vec<isize>, image: &BitMatrix) -> f64 {
         let mut x = left_top_black[0];
         let mut y = left_top_black[1];
         let mut in_black = true;

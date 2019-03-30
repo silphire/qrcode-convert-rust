@@ -6,7 +6,7 @@ pub struct BinaryBitmap {
 }
 
 impl BinaryBitmap {
-    pub fn get_width(&self) -> usize {
+    pub fn get_width(&self) -> isize {
         return 0;
         // TODO implement
     }

@@ -1,6 +1,6 @@
 pub struct DecoderResult {
     raw_bytes: Vec<u8>, 
-    num_bits: usize,
+    num_bits: isize,
     text: str,
     byte_segments: Vec<Vec<u8>>,
     ec_level: str,

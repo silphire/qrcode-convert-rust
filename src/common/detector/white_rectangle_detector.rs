@@ -4,19 +4,19 @@ use crate::common::detector::math_utils;
 
 pub struct WhiteRectangleDetector {
     image: BitMatrix,
-    height: usize,
-    width: usize,
-    left_init: usize,
-    right_init: usize,
-    down_init: usize,
-    up_init: usize,
+    height: isize,
+    width: isize,
+    left_init: isize,
+    right_init: isize,
+    down_init: isize,
+    up_init: isize,
 }
 
-const INIT_SIZE: usize = 10;
+const INIT_SIZE: isize = 10;
 const CORR: f64 = 1.0;
 
 impl WhiteRectangleDetector {
-    pub fn new(image: BitMatrix, init_size: usize, x: usize, y: usize) -> Option<WhiteRectangleDetector> {
+    pub fn new(image: BitMatrix, init_size: isize, x: isize, y: isize) -> Option<WhiteRectangleDetector> {
         let half_size = init_size / 2;
 
         if y < half_size || x < half_size {
@@ -102,7 +102,7 @@ impl WhiteRectangleDetector {
                 }
             }
 
-            if left < 0 {   // TODO for usize
+            if left < 0 {   // TODO for isize
                 size_exceeded = true;
                 break;
             }
@@ -119,7 +119,7 @@ impl WhiteRectangleDetector {
                 }
             }
 
-            if up < 0 {   // TODO for usize
+            if up < 0 {   // TODO for isize
                 size_exceeded = true;
                 break;
             }
@@ -130,7 +130,7 @@ impl WhiteRectangleDetector {
         }
 
         let max_size = right - left;
-        let i: usize;
+        let i: isize;
 
         let mut z: Option<ResultPoint> = None;
         for i in 1..max_size {
@@ -204,8 +204,8 @@ impl WhiteRectangleDetector {
         let x_step = (bx - ax) / dist as f64;
         let y_step = (by - ay) / dist as f64;
         for i in 0..dist {
-            let x = math_utils::round(ax + (i as f64) * x_step) as usize;
-            let y = math_utils::round(ay + (i as f64) * y_step) as usize;
+            let x = math_utils::round(ax + (i as f64) * x_step) as isize;
+            let y = math_utils::round(ay + (i as f64) * y_step) as isize;
             if self.image.get(x, y) {
                 return Some(ResultPoint {x: x as f64, y: y as f64});
             }
@@ -240,7 +240,7 @@ impl WhiteRectangleDetector {
         }
     }
 
-    fn contains_black_point(&self, a: usize, b: usize, fixed: usize, horizontal: bool) -> bool {
+    fn contains_black_point(&self, a: isize, b: isize, fixed: isize, horizontal: bool) -> bool {
         if horizontal {
             for x in a..(b + 1) {
                 if self.image.get(x, fixed) {

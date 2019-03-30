@@ -7,7 +7,7 @@ pub struct MonochromeRectangleDetector {
 
 impl MonochromeRectangleDetector {
     pub fn detect(&self) -> Option<Vec<ResultPoint>> {
-        const MAX_MODULES: usize = 32;
+        const MAX_MODULES: isize = 32;
 
         let height = self.image.height;
         let width = self.image.width;
@@ -32,7 +32,7 @@ impl MonochromeRectangleDetector {
             bottom,
             half_width / 2
         )?;
-        top = (point_a.y as usize) - 1;
+        top = (point_a.y as isize) - 1;
 
         let point_b: ResultPoint = self.find_corner_from_center(
             half_width,
@@ -45,7 +45,7 @@ impl MonochromeRectangleDetector {
             bottom,
             half_height / 2
         )?;
-        left = (point_b.x as usize) - 1;
+        left = (point_b.x as isize) - 1;
 
         let point_c: ResultPoint = self.find_corner_from_center(
             half_width,
@@ -58,7 +58,7 @@ impl MonochromeRectangleDetector {
             bottom,
             half_height / 2
         )?;
-        right = (point_c.x as usize) + 1;
+        right = (point_c.x as isize) + 1;
 
         let point_d: ResultPoint = self.find_corner_from_center(
             half_width,
@@ -71,7 +71,7 @@ impl MonochromeRectangleDetector {
             bottom,
             half_width / 2
         )?;
-        bottom = (point_d.y as usize) + 1;
+        bottom = (point_d.y as isize) + 1;
 
         point_a = self.find_corner_from_center(
             half_width,
@@ -90,29 +90,50 @@ impl MonochromeRectangleDetector {
 
     fn find_corner_from_center(
         &self,
-        center_x: usize,
+        center_x: isize,
         delta_x: isize,
-        left: usize,
-        right: usize,
-        center_y: usize,
+        left: isize,
+        right: isize,
+        center_y: isize,
         delta_y: isize,
-        top: usize,
-        bottom: usize,
-        max_white_run: usize
+        top: isize,
+        bottom: isize,
+        max_white_run: isize
     ) -> Option<ResultPoint> {
-        for let 
+        let mut last_range: Option<Vec<isize>>;
+        let y = center_y;
+        let x = center_x;
+        while y < bottom && y >= top && x < right && x >= left {
+            let range = if delta_x == 0 {
+                self.black_white_range(y, max_white_run, left, right, true)
+            } else {
+                self.black_white_range(x, max_white_run, top, bottom, false)
+            };
+
+            if range.is_none() {
+                if last_range.is_none() {
+                    return None;    // NotFound
+                }
+                
+                let last_y = y - delta_y;
+            }
+
+            last_range = range;
+            y += delta_y;
+            x += delta_x;
+        }
 
         return None;
     }
 
     fn black_white_range(
         &self,
-        fixed_dimension: usize, 
-        max_white_run: usize, 
-        min_dim: usize, 
-        max_dim: usize, 
+        fixed_dimension: isize, 
+        max_white_run: isize, 
+        min_dim: isize, 
+        max_dim: isize, 
         horizontal: bool
-    ) -> Option<Vec<usize>> {
+    ) -> Option<Vec<isize>> {
         let center = (min_dim + max_dim) / 2;
 
         let start = center;

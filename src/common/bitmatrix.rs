@@ -2,14 +2,14 @@ use crate::common::bitarray::BitArray;
 
 #[derive(Clone)]
 pub struct BitMatrix {
-    pub width: usize,
-    pub height: usize,
-    pub row_size: usize,
+    pub width: isize,
+    pub height: isize,
+    pub row_size: isize,
     pub bits: Vec<i32>,
 }
 
 impl BitMatrix {
-    pub fn new_with_dimension(dimension: usize) -> BitMatrix {
+    pub fn new_with_dimension(dimension: isize) -> BitMatrix {
         return BitMatrix{
             width: 0,
             height: 0,
@@ -18,7 +18,7 @@ impl BitMatrix {
         }
     }
 
-    pub fn new(width: usize, height: usize, row_size: usize, bits: Vec<i32>) -> BitMatrix {
+    pub fn new(width: isize, height: isize, row_size: isize, bits: Vec<i32>) -> BitMatrix {
         return BitMatrix {
             width: width,
             height: height,
@@ -33,24 +33,24 @@ impl BitMatrix {
     //pub fn parse_from_str() -> BitMatrix {
     //}
 
-    pub fn get(&self, x: usize, y: usize) -> bool {
+    pub fn get(&self, x: isize, y: isize) -> bool {
         let offset = y * self.row_size + (x / 32);
-        return ((self.bits[offset] >> (x & 0x1f)) & 1) != 0;
+        return ((self.bits[offset as usize] >> (x & 0x1f)) & 1) != 0;
     }
 
-    pub fn set(&mut self, x: usize, y: usize) {
+    pub fn set(&mut self, x: isize, y: isize) {
         let offset = y * self.row_size + (x / 32);
-        self.bits[offset] |= 1 << (x & 0x1f);
+        self.bits[offset as usize] |= 1 << (x & 0x1f);
     }
 
-    pub fn unset(&mut self, x: usize, y: usize) {
+    pub fn unset(&mut self, x: isize, y: isize) {
         let offset = y * self.row_size + (x / 32);
-        self.bits[offset] &= !(1 << (x & 0x1f));
+        self.bits[offset as usize] &= !(1 << (x & 0x1f));
     }
 
-    pub fn flip(&mut self, x: usize, y: usize) {
+    pub fn flip(&mut self, x: isize, y: isize) {
         let offset = y * self.row_size + (x / 32);
-        self.bits[offset] ^= 1 << (x & 0x1f);
+        self.bits[offset as usize] ^= 1 << (x & 0x1f);
     }
 
     pub fn xor(&mut self, mask: &BitMatrix) {
@@ -63,7 +63,7 @@ impl BitMatrix {
             let offset = y * self.row_size;
             let row = mask.get_row(y, Some(&mut row_array)).get_bit_array();
             for x in 0..self.row_size {
-                self.bits[offset + x] ^= row[x];
+                self.bits[(offset + x) as usize] ^= row[x as usize];
             }
         }
     }
@@ -75,7 +75,7 @@ impl BitMatrix {
         }
     }
 
-    pub fn set_region(&mut self, left: usize, top: usize, width: usize, height: usize) {
+    pub fn set_region(&mut self, left: isize, top: isize, width: isize, height: isize) {
         if height < 1 || width < 1 {
             // illegal argument
         }
@@ -88,34 +88,32 @@ impl BitMatrix {
         for y in top..bottom {
             let offset = y * self.row_size;
             for x in left..right {
-                self.bits[offset + (x / 32)] |= 1 << (x & 0x1f);
+                self.bits[(offset + (x / 32)) as usize] |= 1 << (x & 0x1f);
             }
         }
     }
 
-    pub fn get_row<'a>(&self, y: usize, row: Option<&'a mut BitArray>) -> &'a mut BitArray {
-        let new_row: &mut BitArray;
-        
-        if row.is_none() {
-            new_row = &mut BitArray::new_with_size(self.width);
-        } else {
-            let raw_row = row.unwrap();
-            if raw_row.get_size() < self.width {
-                new_row = &mut BitArray::new_with_size(self.width);
+    pub fn get_row<'a>(&self, y: isize, row: Option<&'a mut BitArray>) -> &'a mut BitArray {
+        let new_row = row.map_or_else(
+            || BitArray::new_with_size(self.width),
+            |v| 
+            if v.get_size() < self.width {
+                BitArray::new_with_size(self.width)
             } else {
-                new_row = raw_row;
-                new_row.clear();
+                v.clear();
+                v
             }
-        }
+        );
+
         let offset = y * self.row_size;
         for x in 0..self.row_size {
-            new_row.set_bulk(x * 32, self.bits[offset + x]);
+            new_row.set_bulk(x * 32, self.bits[(offset + x) as usize]);
         }
 
-        return new_row;
+        return &'a mut new_row;
     }
 
-    pub fn set_row(&mut self, y: usize, row: &BitArray) {
+    pub fn set_row(&mut self, y: isize, row: &BitArray) {
         ;
     }
 
@@ -132,7 +130,7 @@ impl BitMatrix {
         }
     }
 
-    pub fn get_enclosing_rectangle(&self) -> Vec<usize> {
+    pub fn get_enclosing_rectangle(&self) -> Vec<isize> {
         let mut left = self.width;
         let mut top = self.height;
         let mut right = 0;
@@ -140,7 +138,7 @@ impl BitMatrix {
 
         for y in 0..self.height {
             for x32 in 0..self.row_size {
-                let the_bits = self.bits[y * self.row_size + x32];
+                let the_bits = self.bits[(y * self.row_size + x32) as usize];
                 if the_bits != 0 {
                     if y < top {
                         top = y;
@@ -178,7 +176,7 @@ impl BitMatrix {
         return vec![left, top, right - left + 1, bottom - top + 1];
     }
 
-    pub fn get_top_left_on_bit(&self) -> Vec<usize> {
+    pub fn get_top_left_on_bit(&self) -> Vec<isize> {
         let mut bits_offset = 0;
         
         while bits_offset < self.bits.len() && self.bits[bits_offset] == 0 {
@@ -188,8 +186,8 @@ impl BitMatrix {
             return vec![];
         }
 
-        let y = bits_offset / self.row_size;
-        let mut x = (bits_offset % self.row_size) * 32;
+        let y = bits_offset as isize / self.row_size;
+        let mut x = (bits_offset as isize % self.row_size) * 32;
 
         let the_bits = self.bits[bits_offset];
         let mut bit = 0;
@@ -201,7 +199,7 @@ impl BitMatrix {
         return vec![x, y];
     }
 
-    pub fn get_bottom_right_on_bit(&self) -> Vec<usize> {
+    pub fn get_bottom_right_on_bit(&self) -> Vec<isize> {
         let mut bits_offset = self.bits.len() - 1;
         while bits_offset >= 0 && self.bits[bits_offset] == 0 {
             if bits_offset == 0 {
@@ -211,8 +209,8 @@ impl BitMatrix {
             bits_offset -= 1;
         }
 
-        let y = bits_offset / self.row_size;
-        let mut x = bits_offset % self.row_size * 32;
+        let y = bits_offset as usize / self.row_size;
+        let mut x = bits_offset as usize % self.row_size * 32;
 
         let the_bits = self.bits[bits_offset];
         let mut bit = 31;
