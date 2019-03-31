@@ -26,9 +26,11 @@ impl BitMatrixParser {
         for i in 1..6 {
             format_info_bits_1 = self.copy_bit(i, 8, format_info_bits_1);
         }
+
+        unimplemented!();
     }
 
     fn copy_bit(&self, i: isize, j: isize, version_bits: isize) -> isize {
-        return 0;  // TODO implement
+        unimplemented!();
     }
 }
