@@ -1,19 +1,24 @@
 use crate::common::detector::math_utils;
 
 pub struct ResultPoint {
-    pub x: f64,
-    pub y: f64,
+    x: f64,
+    y: f64,
 }
 
 pub trait ResultPointTrait {
-    fn order_best_patterns(patterns: &mut Vec<&ResultPoint>) {
-        let zero_one_distance = Self::distance(&patterns[0], &patterns[1]);
-        let one_two_distance = Self::distance(&patterns[1], &patterns[2]);
-        let zero_two_distance = Self::distance(&patterns[0], &patterns[2]);
+    fn get_x(&self) -> f64;
+    fn set_x(&mut self, x: f64);
+    fn get_y(&self) -> f64;
+    fn set_y(&mut self, y: f64);
 
-        let mut point_a: &ResultPoint;
-        let point_b: &ResultPoint;
-        let mut point_c: &ResultPoint;
+    fn order_best_patterns<T: ResultPointTrait>(patterns: &mut Vec<&T>) {
+        let zero_one_distance = Self::distance(patterns[0], patterns[1]);
+        let one_two_distance = Self::distance(patterns[1], patterns[2]);
+        let zero_two_distance = Self::distance(patterns[0], patterns[2]);
+
+        let mut point_a: &T;
+        let point_b: &T;
+        let mut point_c: &T;
 
         if one_two_distance >= zero_one_distance && one_two_distance >= zero_two_distance {
             point_b = &patterns[0];
@@ -40,16 +45,32 @@ pub trait ResultPointTrait {
         patterns[2] = point_c;
     }
 
-    fn distance(pattern1: &ResultPoint, pattern2: &ResultPoint) -> f64 {
-        return math_utils::distance(pattern1.x, pattern1.y, pattern2.x, pattern2.y);
+    fn distance<T: ResultPointTrait>(pattern1: &T, pattern2: &T) -> f64 {
+        return math_utils::distance(pattern1.get_x(), pattern1.get_y(), pattern2.get_x(), pattern2.get_y());
     }
 
-    fn cross_product_z(point_a: &ResultPoint, point_b: &ResultPoint, point_c: &ResultPoint) -> f64 {
-        let bx = point_b.x;
-        let by = point_b.y;
+    fn cross_product_z<T: ResultPointTrait>(point_a: &T, point_b: &T, point_c: &T) -> f64 {
+        let bx = point_b.get_x();
+        let by = point_b.get_y();
 
-        return ((point_c.x - bx) * (point_a.y - by)) - ((point_c.y - by) * (point_a.x - bx));
+        return ((point_c.get_x() - bx) * (point_a.get_y() - by)) - ((point_c.get_y() - by) * (point_a.get_x() - bx));
     }
 }
 
-impl ResultPointTrait for ResultPoint {}
+impl ResultPointTrait for ResultPoint {
+    fn get_x(&self) -> f64 {
+        return self.x;
+    }
+
+    fn set_x(&mut self, x: f64) {
+        self.x = x;
+    }
+
+    fn get_y(&self) -> f64 {
+        return self.y;
+    }
+
+    fn set_y(&mut self, y: f64) {
+        self.y = y;
+    }
+}
