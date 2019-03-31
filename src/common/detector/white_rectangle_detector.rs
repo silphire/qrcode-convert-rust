@@ -1,5 +1,6 @@
 use crate::common::bitmatrix::BitMatrix;
 use crate::result_point::ResultPoint;
+use crate::result_point::ResultPointTrait;
 use crate::common::detector::math_utils;
 
 pub struct WhiteRectangleDetector {
@@ -214,14 +215,14 @@ impl WhiteRectangleDetector {
     }
 
     fn center_edges(&self, y: &ResultPoint, z: &ResultPoint, x: &ResultPoint, t: &ResultPoint) -> &Vec<ResultPoint> {
-        let yi = y.x;
-        let yj = y.y;
-        let zi = z.x;
-        let zj = z.y;
-        let xi = x.x;
-        let xj = x.y;
-        let ti = t.x;
-        let tj = t.y;
+        let yi = y.get_x();
+        let yj = y.get_y();
+        let zi = z.get_x();
+        let zj = z.get_y();
+        let xi = x.get_x();
+        let xj = x.get_y();
+        let ti = t.get_x();
+        let tj = t.get_y();
 
         if yi < (self.width / 2) as f64 {
             return &vec![
