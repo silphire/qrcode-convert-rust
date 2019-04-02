@@ -116,7 +116,7 @@ impl BitMatrix {
     }
 
     pub fn set_row(&mut self, y: isize, row: &BitArray) {
-        ;
+        unimplemented!();
     }
 
     pub fn rotate_180(&mut self) {
