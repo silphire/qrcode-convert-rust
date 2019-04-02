@@ -1,3 +1,4 @@
+use std::any::Any;
 use std::collections::HashMap;
 use crate::decode_hint_type::DecodeHintType;
 use crate::qrcode::decoder::bitmatrix_parser::BitMatrixParser;
@@ -18,7 +19,7 @@ impl Decoder {
 
     }
 
-    pub fn decode_with_hint(&mut self, hints: &HashMap<DecodeHintType, u8>) {
+    pub fn decode_with_hint(&mut self, hints: &HashMap<DecodeHintType, &Any>) {
 
     }
 
