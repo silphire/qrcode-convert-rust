@@ -1,5 +1,4 @@
 use crate::result_point::ResultPointTrait;
-use std::num;
 
 pub struct FinderPattern {
     x: f64, 
