@@ -64,4 +64,39 @@ impl FinderPatternFinder {
             (module_size - state_count[3] as f64).abs() < max_variance && 
             (module_size - state_count[4] as f64).abs() < max_variance; 
     }
+
+    fn found_pattern_diagonal(state_count: [isize; 5]) -> bool {
+        let total_module_size = 0;
+        for i in 0..5 {
+            let count = state_count[i];
+            if count == 0 {
+                return false;
+            }
+            total_module_size += count;
+        }
+        if total_module_size < 7 {
+            return false;
+        }
+
+        let module_size = total_module_size as f64 / 7.0;
+        let max_variance = module_size / 1.333;
+
+        return 
+            (module_size - state_count[0] as f64).abs() < max_variance && 
+            (module_size - state_count[1] as f64).abs() < max_variance && 
+            (3.0 * module_size - state_count[2] as f64).abs() < max_variance &&
+            (module_size - state_count[3] as f64).abs() < max_variance &&
+            (module_size - state_count[4] as f64).abs() < max_variance;
+    }
+
+    fn get_cross_check_state_count(&self) -> [isize; 5] {
+        self.clear_counts(self.cross_check_state_count);
+        return self.cross_check_state_count;
+    }
+
+    fn clear_counts(&self, counts: [isize; 5]) {
+        for x in 0..counts.len() {
+            counts[x] = 0;
+        }
+    }
 }
