@@ -9,7 +9,7 @@ pub struct FinderPatternFinder {
     image: BitMatrix,
     possible_centers: Vec<isize>,
     cross_check_state_count: [isize; 5],
-    result_point_callback: fn(point: &ResultPoint),
+    result_point_callback: Option<fn(point: &ResultPoint)>,
 }
 
 const CENTER_QUORUM: isize = 2;
@@ -17,7 +17,7 @@ const MIN_SKIP: isize = 3;
 const MAX_MODULES: isize = 97;
 
 impl FinderPatternFinder {
-    pub fn new(image: BitMatrix, result_point_callback: &fn(point: &ResultPoint)) -> FinderPatternFinder {
+    pub fn new(image: BitMatrix, result_point_callback: Option<fn(point: &ResultPoint)>) -> FinderPatternFinder {
         unimplemented!();
     }
 
