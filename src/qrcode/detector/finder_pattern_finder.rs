@@ -17,6 +17,10 @@ const MIN_SKIP: isize = 3;
 const MAX_MODULES: isize = 97;
 
 impl FinderPatternFinder {
+    pub const fn get_image(&self) -> &BitMatrix {
+        return &self.image;
+    }
+
     pub fn new(image: BitMatrix, result_point_callback: Option<fn(point: &ResultPoint)>) -> FinderPatternFinder {
         unimplemented!();
     }
@@ -98,5 +102,85 @@ impl FinderPatternFinder {
         for x in 0..counts.len() {
             counts[x] = 0;
         }
+    }
+    
+    fn shift_counts_2(&self, state_count: &mut [isize; 5]) {
+        state_count[0] = state_count[2];
+        state_count[1] = state_count[3];
+        state_count[2] = state_count[4];
+        state_count[3] = 1;
+        state_count[4] = 0;
+    }
+
+    fn cross_check_diagonal(&self, center_i: isize, center_j: isize) -> bool {
+        let state_count = self.get_cross_check_state_count();
+
+        let i = 0;
+        while center_i >= i && center_j >= i && self.image.get(center_j - i, center_i - i) {
+            state_count[2] += 1;
+            i += 1;
+        }
+
+        if state_count[2] == 0 {
+            return false;
+        }
+
+        while center_i >= i && center_j >= i && self.image.get(center_j - i, center_i - i) {
+            state_count[1] += 1;
+            i += 1;
+        }
+
+        if state_count[1] == 0 {
+            return false;
+        }
+
+        while center_i >= i && center_j >= i && self.image.get(center_j - i, center_i - i) {
+            state_count[0] += 1;
+            i += 1;
+        }
+
+        if state_count[0] == 0 {
+            return false;
+        }
+
+        let max_i = self.get_image().height;
+        let max_j = self.get_image().width;
+
+        i = 1;
+        while center_i + i < max_i && center_j + i < max_j && self.image.get(center_j + i, center_i + i) {
+            state_count[2] += 1;
+            i += 1;
+        }
+
+        while center_i + i < max_i && center_j + i < max_j && !self.image.get(center_j + i, center_i + i) {
+            state_count[3] += 1;
+            i += 1;
+        }
+
+        if state_count[3] == 0 {
+            return false;
+        }
+
+        while center_i + i < max_i && center_j + i < max_j && self.image.get(center_j + i, center_i + i) {
+            state_count[4] += 1;
+            i += 1;
+        }
+
+        if state_count[4] == 0 {
+            return false;
+        }
+
+        return Self::found_pattern_diagonal(state_count);
+    }
+
+    fn cross_check_vertical(&self, start_i: isize, center_j: isize, max_count: isize, original_state_count_total: isize) -> f64 {
+        let max_i = self.get_image().height;
+        let state_count = self.get_cross_check_state_count();
+
+        let i = start_i;
+        
+        // unimplemented!();
+
+        return if Self::found_pattern_cross(state_count) { self.center_from_end(&state_count, i) } else { std::f64::NAN };
     }
 }
