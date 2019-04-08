@@ -174,12 +174,63 @@ impl FinderPatternFinder {
     }
 
     fn cross_check_vertical(&self, start_i: isize, center_j: isize, max_count: isize, original_state_count_total: isize) -> f64 {
-        let max_i = self.get_image().height;
+        let image = self.get_image();
+        let max_i = image.height;
         let state_count = self.get_cross_check_state_count();
 
         let i = start_i;
-        
-        // unimplemented!();
+        while i >= 0 && image.get(center_j, i) {
+            state_count[2] += 1;
+            i -= 1;
+        }
+        if i < 0 {
+            return std::f64::NAN;
+        }
+        while i >= 0 && !image.get(center_j, i) && state_count[1] <= max_count {
+            state_count[1] += 1;
+            i -= 1;
+        }
+        if i < 0 || state_count[1] > max_count {
+            return std::f64::NAN;
+        }
+        while i >= 0 && image.get(center_j, i) && state_count[0] <= max_count {
+            state_count[0] += 1;
+            i -= 1;
+        }
+        if state_count[0] > max_count {
+            return std::f64::NAN;
+        }
+
+        i = start_i + 1;
+        while i < max_i && image.get(center_j, i) {
+            state_count[2] += 1;
+            i += 1;
+        }
+        if i == max_i {
+            return std::f64::NAN;
+        }
+        while i < max_i && !image.get(center_j, i) && state_count[3] < max_count {
+            state_count[3] += 1;
+            i += 1;
+        }
+        if i == max_i || state_count[3] >= max_count {
+            return std::f64::NAN;
+        }
+        while i < max_i && image.get(center_j, i) && state_count[4] < max_count {
+            state_count[4] += 1;
+            i += 1;
+        }
+        if state_count[4] >= max_count {
+            return std::f64::NAN;
+        }
+
+        let state_count_total = 0;
+        for i in &state_count {
+            state_count_total += i;
+        }
+        if 5 * (state_count_total - original_state_count_total).abs() >= 2 * original_state_count_total {
+            return std::f64::NAN;
+        }
 
         return if Self::found_pattern_cross(state_count) { self.center_from_end(&state_count, i) } else { std::f64::NAN };
     }
