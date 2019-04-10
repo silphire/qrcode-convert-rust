@@ -26,7 +26,7 @@ impl ResultPointTrait for FinderPattern {
 }
 
 impl FinderPattern {
-    fn new(pos_x: f64, pos_y: f64, estimated_module_size: f64, count: isize) -> FinderPattern {
+    pub fn new(pos_x: f64, pos_y: f64, estimated_module_size: f64, count: isize) -> FinderPattern {
         return FinderPattern {
             x: pos_x,
             y: pos_y,
@@ -43,7 +43,7 @@ impl FinderPattern {
         return self.count;
     }
 
-    fn about_equals(&self, module_size: f64, i: f64, j: f64) -> bool {
+    pub fn about_equals(&self, module_size: f64, i: f64, j: f64) -> bool {
         if (i - self.get_y()).abs() <= module_size && (j - self.get_x()).abs() <= module_size {
             let module_size_diff = (module_size - self.get_estimated_module_size()).abs();
             return module_size_diff <= 1.0 || module_size_diff <= self.get_estimated_module_size();
@@ -51,7 +51,7 @@ impl FinderPattern {
         return false;
     }
 
-    fn combine_estimate(&self, i: f64, j: f64, new_module_size: f64) -> FinderPattern {
+    pub fn combine_estimate(&self, i: f64, j: f64, new_module_size: f64) -> FinderPattern {
         let combined_count = self.get_count() + 1;
         let combined_x = (self.get_count() as f64 * self.get_x() + j) / combined_count as f64;
         let combined_y = (self.get_count() as f64 * self.get_y() + i) / combined_count as f64;
