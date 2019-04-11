@@ -3,25 +3,28 @@ use std::collections::HashMap;
 use crate::common::bitmatrix::BitMatrix;
 use crate::decode_hint_type::DecodeHintType;
 use crate::result_point::ResultPoint;
+use crate::result_point::ResultPointTrait;
+use crate::qrcode::detector::finder_pattern::FinderPattern;
 use crate::qrcode::detector::finder_pattern_info::FinderPatternInfo;
 
-pub struct FinderPatternFinder {
+pub struct FinderPatternFinder<T: ResultPointTrait> {
     image: BitMatrix,
-    possible_centers: Vec<isize>,
+    possible_centers: Vec<FinderPattern>,
+    has_skipped: bool, 
     cross_check_state_count: [isize; 5],
-    result_point_callback: Option<fn(point: &ResultPoint)>,
+    result_point_callback: Option<fn(point: &T)>,
 }
 
 const CENTER_QUORUM: isize = 2;
 const MIN_SKIP: isize = 3;
 const MAX_MODULES: isize = 97;
 
-impl FinderPatternFinder {
+impl<T: ResultPointTrait> FinderPatternFinder<T> {
     pub const fn get_image(&self) -> &BitMatrix {
         return &self.image;
     }
 
-    pub fn new(image: BitMatrix, result_point_callback: Option<fn(point: &ResultPoint)>) -> FinderPatternFinder {
+    pub fn new(image: BitMatrix, result_point_callback: Option<fn(point: &T)>) -> FinderPatternFinder<T> {
         unimplemented!();
     }
 
@@ -224,10 +227,7 @@ impl FinderPatternFinder {
             return std::f64::NAN;
         }
 
-        let state_count_total = 0;
-        for i in &state_count {
-            state_count_total += i;
-        }
+        let state_count_total = &state_count.iter().sum();
         if 5 * (state_count_total - original_state_count_total).abs() >= 2 * original_state_count_total {
             return std::f64::NAN;
         }
@@ -287,10 +287,7 @@ impl FinderPatternFinder {
             return std::f64::NAN;
         }
 
-        let state_count_total = 0;
-        for i in &state_count {
-            state_count_total += i;
-        }
+        let state_count_total = &state_count.iter().sum();
         if 5 * (state_count_total - original_state_count_total).abs() >= original_state_count_total {
             return std::f64::NAN;
         }
@@ -298,7 +295,57 @@ impl FinderPatternFinder {
         return if Self::found_pattern_cross(state_count) { self.center_from_end(&state_count, j) } else { std::f64::NAN };
     }
 
-    fn handle_possible_center(state_count: [isize; 5], i: isize, j: isize) -> bool {
-        unimplemented!();
+    fn handle_possible_center(&self, state_count: &[isize; 5], i: isize, j: isize) -> bool {
+        let state_count_total = state_count.iter().sum();
+        let center_j = self.center_from_end(state_count, i);
+        let center_i = self.cross_check_vertical(i, center_j as isize, state_count[2], state_count_total);
+        if !center_i.is_nan() {
+            center_j = self.cross_check_horizontal(center_j as isize, center_i as isize, state_count[2], state_count_total);
+            if !center_j.is_nan() && self.cross_check_diagonal(center_i as isize, center_j as isize) {
+                let estimated_module_size = state_count_total as f64 / 7.0;
+                let found = false;
+                for index in 0..self.possible_centers.len() {
+                    let center = self.possible_centers[index];
+                    if center.about_equals(estimated_module_size, center_i, center_j) {
+                        self.possible_centers[index] = center.combine_estimate(center_i, center_j, estimated_module_size);
+                        found = true;
+                        break;
+                    }
+                }
+
+                if !found {
+                    let point = FinderPattern::new(center_j, center_i, estimated_module_size, 1);
+                    self.possible_centers.push(point);
+                    if let Some(func) = self.result_point_callback {
+                        unimplemented!();
+                        //func(&point);
+                    }
+                }
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    fn find_row_skip(&self) -> isize {
+        let max = self.possible_centers.len();
+        if max <= 1 {
+            return 0;
+        }
+
+        let mut first_confirmed_center: Option<&FinderPattern> = None;
+        for center in self.possible_centers {
+            if center.get_count() >= CENTER_QUORUM {
+                if let Some(confirmed_center) = first_confirmed_center {
+                    self.has_skipped = true;
+                    return ((confirmed_center.get_x() - center.get_x()).abs() - (confirmed_center.get_y() - center.get_y()).abs()) as isize / 2;
+                } else {
+                    first_confirmed_center = Some(&center);
+                }
+            }
+        }
+
+        return 0;
     }
 }
