@@ -348,4 +348,26 @@ impl<T: ResultPointTrait> FinderPatternFinder<T> {
 
         return 0;
     }
+
+    fn have_multiply_confirmed_centers(&self) -> bool {
+        let confirmed_count = 0;
+        let total_module_size = 0.0;
+        let max = self.possible_centers.len();
+        for pattern in self.possible_centers {
+            if pattern.get_count() >= CENTER_QUORUM {
+                confirmed_count += 1;
+                total_module_size += pattern.get_estimated_module_size();
+            }
+        }
+        if confirmed_count < 3 {
+            return false;
+        }
+
+        let average = total_module_size / max as f64;
+        let total_deviation = 0.0;
+        for pattern in self.possible_centers {
+            total_deviation += (pattern.get_estimated_module_size() - average).abs();
+        }
+        return total_deviation <= 0.05 * total_module_size;
+    }
 }
