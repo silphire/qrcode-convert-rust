@@ -1,4 +1,5 @@
 use std::any::Any;
+use std::cmp::Ordering;
 use std::collections::HashMap;
 use crate::common::bitmatrix::BitMatrix;
 use crate::decode_hint_type::DecodeHintType;
@@ -369,5 +370,69 @@ impl<T: ResultPointTrait> FinderPatternFinder<T> {
             total_deviation += (pattern.get_estimated_module_size() - average).abs();
         }
         return total_deviation <= 0.05 * total_module_size;
+    }
+
+    fn select_best_patterns(&self) -> Vec<FinderPattern> {
+        let start_size = self.possible_centers.len();
+        if start_size < 3 {
+            unimplemented!();
+            // throw NotFoundException
+        }
+
+        if start_size > 3 {
+            let total_module_size = 0.0;
+            let square = 0.0;
+
+            for center in self.possible_centers {
+                let size = center.get_estimated_module_size();
+                total_module_size += size;
+                square += size * size;
+            }
+            let average = total_module_size / start_size as f64;
+            let stddev = (square / start_size as f64 - average * average).sqrt();
+
+            self.possible_centers.sort_unstable_by(|center1, center2| {
+                let c1 = (center1.get_estimated_module_size() - average).abs();
+                let c2 = (center2.get_estimated_module_size() - average).abs();
+                return c2.partial_cmp(&c1).unwrap_or(Ordering::Equal);
+            });
+
+            let limit = f64::max(0.2 * average, stddev);
+
+            let i = 0;
+            while i < self.possible_centers.len() && self.possible_centers.len() > 3 {
+                let pattern = self.possible_centers[i];
+                if (pattern.get_estimated_module_size() - average).abs() > limit {
+                    self.possible_centers.remove(i);
+                    i -= 1;
+                }
+                i += 1;
+            }
+        }
+
+        if self.possible_centers.len() > 3 {
+            let total_module_size = 0.0;
+            for possible_center in self.possible_centers {
+                total_module_size += possible_center.get_estimated_module_size();
+            }
+
+            let average = total_module_size / self.possible_centers.len() as f64;
+            self.possible_centers.sort_unstable_by(|center1, center2| {
+                let count_compare = center2.get_count().cmp(&center1.get_count());
+                if count_compare == Ordering::Equal {
+                    let c1 = (center1.get_estimated_module_size() - average).abs();
+                    let c2 = (center2.get_estimated_module_size() - average).abs();
+                    return c2.partial_cmp(&c1).unwrap_or(Ordering::Equal);
+                }
+                return count_compare;
+            });
+            self.possible_centers.truncate(3);
+        }
+
+        return vec![
+            self.possible_centers[0],
+            self.possible_centers[1],
+            self.possible_centers[2],
+        ];
     }
 }
