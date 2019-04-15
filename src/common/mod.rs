@@ -4,3 +4,4 @@ pub mod bitsource;
 pub mod detector;
 pub mod detector_result;
 pub mod reedsolomon;
+pub mod perspective_transform;
