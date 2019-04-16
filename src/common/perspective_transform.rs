@@ -11,6 +11,61 @@ pub struct PerspectiveTransform {
 }
 
 impl PerspectiveTransform {
+    pub fn square_to_quadrilateral(x0: f64, y0: f64, x1: f64, y1: f64, x2: f64, y2: f64, x3: f64, y3: f64) -> PerspectiveTransform {
+        let dx3 = x0 - x1 + x2 - x3;
+        let dy3 = y0 - y1 + y2 - y3;
+        if dx3 == 0.0 && dy3 == 0.0 {
+            return PerspectiveTransform {
+                a11: x1 - x0,
+                a12: x2 - x1,
+                a13: x0,
+                a21: y1 - y0,
+                a22: y2 - y1,
+                a23: y0,
+                a31: 0.0,
+                a32: 0.0,
+                a33: 1.0,
+            };
+        } else {
+            let dx1 = x1 - x2;
+            let dx2 = x3 - x2;
+            let dy1 = y1 - y2;
+            let dy2 = y3 - y2;
+            let denominator = dx1 * dy2 - dx2 * dy1;
+            let a13 = (dx3 * dy2 - dx2 * dy3) / denominator;
+            let a23 = (dx1 * dy3 - dx3 * dy1) / denominator;
+            return PerspectiveTransform {
+                a11: x1 - x0 + a13 * x1,
+                a12: x3 - x0 + a23 * x3,
+                a13: x0,
+                a21: y1 - y0 + a13 * y1,
+                a22: y3 - y0 + a23 * y3,
+                a23: y0,
+                a31: a13,
+                a32: a23,
+                a33: 1.0,
+            }
+        }
+    }
+
+    pub const fn quadrilateral_to_square(x0: f64, y0: f64, x1: f64, y1: f64, x2: f64, y2: f64, x3: f64, y3: f64) -> PerspectiveTransform {
+        return Self::square_to_quadrilateral(x0, y0, x1, y1, x2, y2, x3, y3).build_adjoint();
+    }
+
+    pub const fn build_adjoint(&self) -> PerspectiveTransform {
+        return PerspectiveTransform {
+            a11: self.a22 * self.a33 - self.a23 * self.a32,
+            a21: self.a23 * self.a31 - self.a21 * self.a33,
+            a31: self.a21 * self.a32 - self.a22 * self.a31,
+            a12: self.a13 * self.a32 - self.a12 * self.a33,
+            a22: self.a11 * self.a33 - self.a13 * self.a31,
+            a32: self.a12 * self.a31 - self.a11 * self.a32,
+            a13: self.a12 * self.a23 - self.a13 * self.a22,
+            a23: self.a13 * self.a21 - self.a11 * self.a23,
+            a33: self.a11 * self.a22 - self.a12 * self.a21,
+        };
+    }
+
     pub const fn times(&self, other: &PerspectiveTransform) -> PerspectiveTransform {
         return PerspectiveTransform {
             a11: self.a11 * other.a11 + self.a21 * other.a12 + self.a31 * other.a13,
