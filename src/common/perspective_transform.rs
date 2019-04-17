@@ -11,7 +11,35 @@ pub struct PerspectiveTransform {
 }
 
 impl PerspectiveTransform {
-    pub fn square_to_quadrilateral(x0: f64, y0: f64, x1: f64, y1: f64, x2: f64, y2: f64, x3: f64, y3: f64) -> PerspectiveTransform {
+    pub const fn quadrilateral_to_quadrilateral(
+        x0: f64, y0: f64,
+        x1: f64, y1: f64,
+        x2: f64, y2: f64,
+        x3: f64, y3: f64,
+        x0p: f64, y0p: f64,
+        x1p: f64, y1p: f64,
+        x2p: f64, y2p: f64,
+        x3p: f64, y3p: f64,
+    ) -> PerspectiveTransform {
+        let qtos = Self::quadrilateral_to_square(x0, y0, x1, y1, x2, y2, x3, y3);
+        let stoq = Self::square_to_quadrilateral(x0p, y0p, x1p, y1p, x2p, y2p, x3p, y3p);
+        return stoq.times(&qtos);
+    }
+
+    pub fn transform_points(&self, points: &[f64]) {
+        let max_i = points.len();
+        for i in (0..max_i).step_by(2) {
+            let x = points[i];
+            let y = points[i + 1];
+            let denominator = self.a13 * x + self.a23 * y + self.a33;
+            points[i] = (self.a11 * x + self.a21 * y + self.a31) / denominator;
+            points[i + 1] = (self.a12 * x + self.a22 * y + self.a32) / denominator;
+        }
+    }
+
+    // Is transform_points(&self, x_values: &[f64], y_values: &[f64]) needed?
+
+    pub const fn square_to_quadrilateral(x0: f64, y0: f64, x1: f64, y1: f64, x2: f64, y2: f64, x3: f64, y3: f64) -> PerspectiveTransform {
         let dx3 = x0 - x1 + x2 - x3;
         let dy3 = y0 - y1 + y2 - y3;
         if dx3 == 0.0 && dy3 == 0.0 {
