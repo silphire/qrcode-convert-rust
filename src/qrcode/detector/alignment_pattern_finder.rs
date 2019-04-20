@@ -90,7 +90,28 @@ impl AlignmentPatternFinder {
         unimplemented!();
     }
 
+    const fn center_from_end(&self, state_count: &[isize; 3], end: isize) -> f64 {
+        return (end - state_count[2]) as f64 - state_count[1] as f64 / 2.0;
+    }
+
     fn found_pattern_cross(&self, state_count: &[isize; 3]) -> bool {
+        let max_variance = self.module_size as f64 / 2.0;
+        for i in 0..3 {
+            if (self.module_size - state_count[i]) as f64 >= max_variance {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    fn cross_check_vertical(&self, start_i: isize, center_j: isize, max_count: isize, original_state_count_to_total: isize) -> f64 {
+        let max_i = self.image.height;
+        let state_count = &self.cross_check_state_count;
+
+        state_count[0] = 0;
+        state_count[1] = 0;
+        state_count[2] = 0;
+
         unimplemented!();
     }
 
