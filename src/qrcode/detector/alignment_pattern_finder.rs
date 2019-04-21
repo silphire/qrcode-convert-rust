@@ -116,6 +116,28 @@ impl AlignmentPatternFinder {
     }
 
     fn handle_possible_center(&self, state_count: &[isize; 3], i: isize, j: isize) -> Option<AlignmentPattern> {
-        unimplemented!();
+        let state_count_total = state_count[0] + state_count[1] + state_count[2];
+        let center_j = self.center_from_end(state_count, j);
+        let center_i = self.cross_check_vertical(i, center_j as isize, 2 * state_count[1], state_count_total);
+        if !center_i.is_nan() {
+            let estimated_module_size = (state_count[0] + state_count[1] + state_count[2]) as f64 / 3.0;
+            for center in self.possible_centers {
+                if center.about_equals(estimated_module_size, center_i, center_j) {
+                    return Some(center.combine_estimate(center_i, center_j, estimated_module_size));
+                }
+            }
+
+            let point = AlignmentPattern {
+                x: center_j,
+                y: center_i,
+                estimated_module_size: estimated_module_size,
+            };
+            self.possible_centers.push(point);
+
+            // nullable?
+            (self.result_point_callback)(point);
+        }
+
+        return None;
     }
 }
