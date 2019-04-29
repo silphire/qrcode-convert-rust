@@ -4,4 +4,5 @@ pub enum Error {
     NotFoundError,
     ReaderError,
     WriterError,
+    IllegalArgumentError,
 }

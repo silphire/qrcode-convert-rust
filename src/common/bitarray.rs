@@ -1,3 +1,5 @@
+use crate::error::Error;
+
 #[derive(Clone)]
 pub struct BitArray {
     pub bits: Vec<i32>,
@@ -110,13 +112,13 @@ impl BitArray {
         self.bits[i as usize / 32] = new_bits;
     }
 
-    pub fn set_range(&mut self, start: isize, mut end: isize) {
+    pub fn set_range(&mut self, start: isize, mut end: isize) -> Result<(), Error> {
         if end < start || end > self.size {
-            unimplemented!();   // TODO IllegalArgumentException
+            return Err(Error::IllegalArgumentError);
         }
 
         if end == start {
-            return;
+            return Ok(());
         }
 
         end -= 1;
@@ -128,6 +130,8 @@ impl BitArray {
             let mask = (2 << last_bit) - (1 << first_bit);
             self.bits[i as usize] = mask;
         }
+
+        return Ok(());
     }
 
     pub fn clear(&mut self) {
@@ -137,13 +141,13 @@ impl BitArray {
         }
     }
 
-    pub fn is_range(&self, start: isize, mut end: isize, value: bool) -> bool {
+    pub fn is_range(&self, start: isize, mut end: isize, value: bool) -> Result<bool, Error> {
         if end < start || end > self.size {
-            unimplemented!();   // TODO IllegalArgumentException
+            return Err(Error::IllegalArgumentError);
         }
 
         if end == start {
-            return true;
+            return Ok(true);
         }
 
         end -= 1;
@@ -155,11 +159,11 @@ impl BitArray {
             let mask = (2 << last_bit) - (1 << first_bit);
 
             if self.bits[i as usize] & mask != (if value { mask } else { 0 }) {
-                return false;
+                return Ok(false);
             }
         }
 
-        return true;
+        return Ok(true);
     }
 
     pub fn append_bit(&mut self, bit: bool) {
@@ -170,24 +174,28 @@ impl BitArray {
         self.size += 1;
     }
 
-    pub fn append_bit_array(&mut self, other: BitArray) {
+    pub fn append_bit_array(&mut self, other: BitArray) -> Result<(), Error> {
         if self.size != other.size {
-            unimplemented!();   // TODO IllegalArgumentException
+            return Err(Error::IllegalArgumentError);
         }
 
         for i in 0..self.bits.len() {
             self.bits[i] ^= other.bits[i];
         }
+
+        return Ok(());
     }
 
-    pub fn xor(&mut self, other: BitArray) {
+    pub fn xor(&mut self, other: BitArray) -> Result<(), Error> {
         if self.size != other.size {
-            unimplemented!();   // TODO IllegalArgumentException
+            return Err(Error::IllegalArgumentError);
         }
 
         for i in 0..self.bits.len() {
             self.bits[i] ^= other.bits[i];
         }
+
+        return Ok(());
     }
 
     pub fn to_bytes(&self, mut bit_offset: isize, mut array: Vec<u8>, offset: isize, num_bytes: isize) {
