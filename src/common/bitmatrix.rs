@@ -18,7 +18,12 @@ impl BitMatrix {
         }
     }
 
-    pub fn new(width: isize, height: isize, row_size: isize, bits: Vec<i32>) -> BitMatrix {
+    pub fn new(width: isize, height: isize) -> BitMatrix {
+        let row_size = (width + 31) / 32;
+        return BitMatrix::new_with_bits(width, height, row_size, Vec::<i32>::with_capacity((row_size * height) as usize))
+    }
+
+    fn new_with_bits(width: isize, height: isize, row_size: isize, bits: Vec<i32>) -> BitMatrix {
         return BitMatrix {
             width: width,
             height: height,
