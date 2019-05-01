@@ -33,15 +33,28 @@ impl BitMatrix {
         }
     }
 
-    pub fn parse_from_bool() -> BitMatrix {
+    pub fn parse_from_bool(image: &[&[bool]]) -> BitMatrix {
+        let height = image.len() as isize;
+        let width = image[0].len() as isize;
+
+        let bits = BitMatrix::new(width, height);
+        for i in 0..height {
+            let image_i = image[i as usize];
+            for j in 0..width {
+                if image_i[j as usize] {
+                    bits.set(j, i);
+                }
+            }
+        }
+
+        return bits;
+    }
+
+    pub fn parse_from_str(string_representation: &str, set_string: &str, unset_string: &str) -> BitMatrix {
         unimplemented!();
     }
 
-    pub fn parse_from_str() -> BitMatrix {
-        unimplemented!();
-    }
-
-    pub fn get(&self, x: isize, y: isize) -> bool {
+    pub const fn get(&self, x: isize, y: isize) -> bool {
         let offset = y * self.row_size + (x / 32);
         return ((self.bits[offset as usize] >> (x & 0x1f)) & 1) != 0;
     }
@@ -61,9 +74,9 @@ impl BitMatrix {
         self.bits[offset as usize] ^= 1 << (x & 0x1f);
     }
 
-    pub fn xor(&mut self, mask: &BitMatrix) {
+    pub fn xor(&mut self, mask: &BitMatrix) -> Result<(), Error> {
         if self.width != mask.width || self.height != mask.height || self.row_size != mask.row_size {
-            // error;
+            return Err(Error::IllegalArgumentError);
         }
 
         let mut row_array = BitArray::new_with_size(self.width);
@@ -74,6 +87,8 @@ impl BitMatrix {
                 self.bits[(offset + x) as usize] ^= row[x as usize];
             }
         }
+
+        return Ok(())
     }
 
     pub fn clear(&mut self) {
@@ -228,6 +243,18 @@ impl BitMatrix {
         x += bit;
 
         return vec![x, y];
+    }
+
+    pub const fn get_width(&self) -> isize {
+        return self.width;
+    }
+
+    pub const fn get_height(&self) -> isize {
+        return self.height;
+    }
+
+    pub const fn get_rowsize(&self) -> isize {
+        return self.row_size;
     }
 }
 
