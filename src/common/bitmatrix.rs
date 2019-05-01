@@ -1,4 +1,5 @@
 use crate::common::bitarray::BitArray;
+use crate::error::Error;
 
 #[derive(Clone)]
 pub struct BitMatrix {
@@ -82,17 +83,15 @@ impl BitMatrix {
         }
     }
 
-    pub fn set_region(&mut self, left: isize, top: isize, width: isize, height: isize) {
+    pub fn set_region(&mut self, left: isize, top: isize, width: isize, height: isize) -> Result<(), Error> {
         if height < 1 || width < 1 {
-            // illegal argument
-            unimplemented!();
+            return Err(Error::IllegalArgumentError);
         }
 
         let right = left + width;
         let bottom = top + height;
         if bottom > self.height || right > self.width {
-            // illegal argument
-            unimplemented!();
+            return Err(Error::IllegalArgumentError);
         }
         for y in top..bottom {
             let offset = y * self.row_size;
@@ -100,6 +99,8 @@ impl BitMatrix {
                 self.bits[(offset + (x / 32)) as usize] |= 1 << (x & 0x1f);
             }
         }
+
+        return Ok(());
     }
 
     pub fn get_row(&self, y: isize, row: Option<Box<BitArray>>) -> Box<BitArray> {
