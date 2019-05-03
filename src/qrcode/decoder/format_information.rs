@@ -11,4 +11,12 @@ impl FormatInformation {
     pub fn num_bits_differing(a: isize, b: isize) -> isize {
         return (a ^ b).count_ones() as isize;
     }
+
+    pub const fn get_error_correction_level(&self) -> ErrorCorrectionLevel {
+        return self.error_correction_level;
+    }
+
+    pub const fn get_data_mask(&self) -> u8 {
+        return self.data_mask;
+    }
 }
