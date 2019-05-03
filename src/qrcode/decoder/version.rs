@@ -77,6 +77,10 @@ impl Version {
         return None;
     }
 
+    pub const fn get_total_codewords(&self) -> isize {
+        return self.total_codewords;
+    }
+
     pub const fn get_dimension_for_version(&self) -> isize {
         return 17 + 4 * self.get_version_number();
     }
