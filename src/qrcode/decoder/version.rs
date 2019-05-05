@@ -1,4 +1,5 @@
 use crate::error::Error;
+use crate::qrcode::decoder::error_correction_level::ErrorCorrectionLevel;
 use crate::qrcode::decoder::format_information::FormatInformation;
 
 static VERSION_DECODE_INFO: [isize; 34] = [
@@ -85,6 +86,10 @@ impl Version {
         return 17 + 4 * self.get_version_number();
     }
 
+    pub const fn get_ec_blocks_for_level(&self, ec_level: &ErrorCorrectionLevel) -> ECBlocks {
+        return self.ec_blocks[*ec_level as usize];
+    }
+
     pub fn new(version_number: isize, alignment_pattern_centers: Vec<isize>, ec_blocks: Vec<ECBlocks>) -> Version {
         let total = 0;
         let ec_codewords = ec_blocks[0].get_ec_codewords_per_block();
@@ -102,7 +107,7 @@ impl Version {
     }
 }
 
-struct ECBlocks {
+pub struct ECBlocks {
     ec_codewords_per_block: isize,
     ec_blocks: Vec<ECB>,
 }
