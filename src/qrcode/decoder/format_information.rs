@@ -42,8 +42,47 @@ pub struct FormatInformation {
 }
 
 impl FormatInformation {
+    fn new(format_info: isize) -> FormatInformation {
+        return FormatInformation {
+            error_correction_level: ErrorCorrectionLevel::for_bits(((format_info >> 3) & 0x03) as usize),
+            data_mask: (format_info & 0x07) as u8
+        }
+    }
+
     pub fn num_bits_differing(a: isize, b: isize) -> isize {
         return (a ^ b).count_ones() as isize;
+    }
+
+    fn do_decode_format_information(masked_format_info_1: isize, masked_format_info_2: isize) -> Option<FormatInformation> {
+        let best_difference = std::isize::MAX;
+        let best_format_info = 0;
+
+        for decode_info in &FORMAT_INFO_DECODE_LOOKUP {
+            let target_info = decode_info[0];
+            if target_info == masked_format_info_1 || target_info == masked_format_info_2 {
+                return Some(FormatInformation::new(decode_info[1]));
+            }
+
+            let bits_difference = Self::num_bits_differing(masked_format_info_1, target_info);
+            if bits_difference < best_difference {
+                best_format_info = decode_info[1];
+                best_difference = bits_difference;
+            }
+
+            if masked_format_info_1 != masked_format_info_2 {
+                bits_difference = Self::num_bits_differing(masked_format_info_2, target_info);
+                if bits_difference < best_difference {
+                    best_format_info = decode_info[1];
+                    best_difference = bits_difference;
+                }
+            }
+        }
+
+        if best_difference <= 3 {
+            return Some(FormatInformation::new(best_format_info));
+        }
+
+        return None;
     }
 
     pub const fn get_error_correction_level(&self) -> ErrorCorrectionLevel {
