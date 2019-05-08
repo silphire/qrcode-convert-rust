@@ -10,7 +10,7 @@ pub trait GridSampler {
         return grid_sampler;
     }
 
-    fn sample_grid(&self, image: BitMatrix, dimension_x: isize, dimension_y: isize, transform: &PerspectiveTransform);
+    fn sample_grid(&self, image: &BitMatrix, dimension_x: isize, dimension_y: isize, transform: &PerspectiveTransform) -> Result<BitMatrix, Error>;
 
     fn check_and_nudge_points(image: &BitMatrix, points: &[f64]) -> Result<(), Error> where Self: Sized {
         let max_offset = points.len() - 1;
