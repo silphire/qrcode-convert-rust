@@ -11,27 +11,27 @@ pub trait ResultPointTrait {
     fn get_y(&self) -> f64;
     fn set_y(&mut self, y: f64);
 
-    fn order_best_patterns<T: ResultPointTrait>(patterns: &mut Vec<&T>) {
+    fn order_best_patterns(patterns: &mut Vec<&ResultPointTrait>)  where Self: Sized {
         let zero_one_distance = Self::distance(patterns[0], patterns[1]);
         let one_two_distance = Self::distance(patterns[1], patterns[2]);
         let zero_two_distance = Self::distance(patterns[0], patterns[2]);
 
-        let mut point_a: &T;
-        let point_b: &T;
-        let mut point_c: &T;
+        let mut point_a: &ResultPointTrait;
+        let point_b: &ResultPointTrait;
+        let mut point_c: &ResultPointTrait;
 
         if one_two_distance >= zero_one_distance && one_two_distance >= zero_two_distance {
-            point_b = &patterns[0];
-            point_a = &patterns[1];
-            point_c = &patterns[2];
+            point_b = patterns[0];
+            point_a = patterns[1];
+            point_c = patterns[2];
         } else if zero_two_distance >= one_two_distance && zero_two_distance >= zero_one_distance {
-            point_b = &patterns[1];
-            point_a = &patterns[0];
-            point_c = &patterns[2];
+            point_b = patterns[1];
+            point_a = patterns[0];
+            point_c = patterns[2];
         } else {
-            point_b = &patterns[2];
-            point_a = &patterns[0];
-            point_c = &patterns[1];
+            point_b = patterns[2];
+            point_a = patterns[0];
+            point_c = patterns[1];
         }
 
         if Self::cross_product_z(point_a, point_b, point_c) < 0.0 {
@@ -45,11 +45,11 @@ pub trait ResultPointTrait {
         patterns[2] = point_c;
     }
 
-    fn distance<T: ResultPointTrait>(pattern1: &T, pattern2: &T) -> f64 {
+    fn distance(pattern1: &ResultPointTrait, pattern2: &ResultPointTrait) -> f64 where Self: Sized {
         return math_utils::distance(pattern1.get_x(), pattern1.get_y(), pattern2.get_x(), pattern2.get_y());
     }
 
-    fn cross_product_z<T: ResultPointTrait>(point_a: &T, point_b: &T, point_c: &T) -> f64 {
+    fn cross_product_z(point_a: &ResultPointTrait, point_b: &ResultPointTrait, point_c: &ResultPointTrait) -> f64 where Self: Sized {
         let bx = point_b.get_x();
         let by = point_b.get_y();
 

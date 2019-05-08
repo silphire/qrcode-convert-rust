@@ -32,7 +32,7 @@ impl GridSampler for DefaultGridSampler {
 }
 
 impl DefaultGridSampler {
-    pub fn new() -> DefaultGridSampler {
+    pub fn new() -> DefaultGridSampler where Self: Sized {
         return DefaultGridSampler {};
     }
 }

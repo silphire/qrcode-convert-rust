@@ -1,12 +1,13 @@
 use crate::common::bitmatrix::BitMatrix;
 use crate::result_point::ResultPoint;
+use crate::result_point::ResultPointTrait;
 
 pub struct MonochromeRectangleDetector {
     image: BitMatrix,
 }
 
 impl MonochromeRectangleDetector {
-    pub fn detect(&self) -> Option<Vec<ResultPoint>> {
+    pub fn detect(&self) -> Option<Vec<&ResultPointTrait>> {
         const MAX_MODULES: isize = 32;
 
         let height = self.image.height;
@@ -21,7 +22,7 @@ impl MonochromeRectangleDetector {
         let mut left = 0;
         let mut right = width;
 
-        let mut point_a: ResultPoint = self.find_corner_from_center(
+        let mut point_a = self.find_corner_from_center(
             half_width,
             0,
             left,
@@ -32,9 +33,9 @@ impl MonochromeRectangleDetector {
             bottom,
             half_width / 2
         )?;
-        top = (point_a.y as isize) - 1;
+        top = (point_a.get_y() as isize) - 1;
 
-        let point_b: ResultPoint = self.find_corner_from_center(
+        let point_b = self.find_corner_from_center(
             half_width,
             -delta_x,
             left,
@@ -45,9 +46,9 @@ impl MonochromeRectangleDetector {
             bottom,
             half_height / 2
         )?;
-        left = (point_b.x as isize) - 1;
+        left = (point_b.get_x() as isize) - 1;
 
-        let point_c: ResultPoint = self.find_corner_from_center(
+        let point_c = self.find_corner_from_center(
             half_width,
             delta_x,
             left,
@@ -58,9 +59,9 @@ impl MonochromeRectangleDetector {
             bottom,
             half_height / 2
         )?;
-        right = (point_c.x as isize) + 1;
+        right = (point_c.get_x() as isize) + 1;
 
-        let point_d: ResultPoint = self.find_corner_from_center(
+        let point_d = self.find_corner_from_center(
             half_width,
             0,
             left,
@@ -71,7 +72,7 @@ impl MonochromeRectangleDetector {
             bottom,
             half_width / 2
         )?;
-        bottom = (point_d.y as isize) + 1;
+        bottom = (point_d.get_y() as isize) + 1;
 
         point_a = self.find_corner_from_center(
             half_width,
@@ -99,7 +100,7 @@ impl MonochromeRectangleDetector {
         top: isize,
         bottom: isize,
         max_white_run: isize
-    ) -> Option<ResultPoint> {
+    ) -> Option<&ResultPointTrait> {
         let mut last_range: Option<Vec<isize>>;
         let y = center_y;
         let x = center_x;
@@ -114,8 +115,18 @@ impl MonochromeRectangleDetector {
                 if last_range.is_none() {
                     return None;    // NotFound
                 }
-                
-                let last_y = y - delta_y;
+
+                if delta_x == 0 {
+                    let last_y = y - delta_y;
+                    if last_range.unwrap()[0] < center_x {
+                        if last_range.unwrap()[1] > center_x {
+                            return Some(&ResultPoint {
+                                x: last_range.unwrap()[(if delta_y > 0 {0} else {1})] as f64,
+                                y: last_y as f64,
+                            });
+                        }
+                    }
+                }
             }
 
             last_range = range;

@@ -1,10 +1,18 @@
+use crate::error::Error;
 use crate::common::bitmatrix::BitMatrix;
 use crate::common::perspective_transform::PerspectiveTransform;
+use crate::common::default_grid_sampler::DefaultGridSampler;
+
+static grid_sampler: &GridSampler = &DefaultGridSampler::new();
 
 pub trait GridSampler {
-    fn sample_grid(&self, image: BitMatrix, dimension_x: isize, dimension_y: isize, transform: PerspectiveTransform);
+    fn get_instance() -> &'static GridSampler where Self: Sized {
+        return grid_sampler;
+    }
 
-    fn check_and_nudge_points(image: &BitMatrix, points: &[f64]) {
+    fn sample_grid(&self, image: BitMatrix, dimension_x: isize, dimension_y: isize, transform: &PerspectiveTransform);
+
+    fn check_and_nudge_points(image: &BitMatrix, points: &[f64]) -> Result<(), Error> where Self: Sized {
         let max_offset = points.len() - 1;
 
         let nudged = true;
@@ -15,8 +23,7 @@ pub trait GridSampler {
             let x = points[offset] as isize;
             let y = points[offset + 1] as isize;
             if x < -1 || x > image.width || y < -1 || y > image.height {
-                // throw NotFound
-                unimplemented!();
+                return Err(Error::NotFoundError);
             }
             nudged = false;
             if x == -1 {
@@ -40,8 +47,7 @@ pub trait GridSampler {
             let x = points[offset] as isize;
             let y = points[offset + 1] as isize;
             if x < -1 || x > image.width || y < -1 || y > image.height {
-                // throw NotFound
-                unimplemented!();
+                return Err(Error::NotFoundError);
             }
             nudged = false;
             if x == -1 {
@@ -59,5 +65,7 @@ pub trait GridSampler {
                 nudged = true;
             }
         }
+
+        return Ok(());
     }
 }
