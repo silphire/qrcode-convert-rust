@@ -3,7 +3,6 @@ use std::cmp::Ordering;
 use std::collections::HashMap;
 use crate::common::bitmatrix::BitMatrix;
 use crate::decode_hint_type::DecodeHintType;
-use crate::result_point::ResultPoint;
 use crate::result_point::ResultPointTrait;
 use crate::qrcode::detector::finder_pattern::FinderPattern;
 use crate::qrcode::detector::finder_pattern_info::FinderPatternInfo;
