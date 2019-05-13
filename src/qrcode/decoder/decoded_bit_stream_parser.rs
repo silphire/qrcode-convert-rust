@@ -4,6 +4,10 @@ use crate::error::Error;
 const ALPHANUMERIC_CHARS: &str = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:";
 const GB2312_SUBSET: isize = 1;
 
+fn decode_byte_segment() -> Result<(), Error> {
+    unimplemented!();
+}
+
 fn to_alpha_numeric_char(value: usize) -> Result<char, Error> {
     if value >= ALPHANUMERIC_CHARS.len() {
         return Err(Error::FormatError);
@@ -11,6 +15,35 @@ fn to_alpha_numeric_char(value: usize) -> Result<char, Error> {
 
     return ALPHANUMERIC_CHARS.chars().nth(value).ok_or(Error::FormatError);
 }
+
+fn decode_alphanumeric_segment(bits: &BitSource, result: &String, count: isize, fc1_in_effect: bool) -> Result<(), Error> {
+    let start = result.len();
+    while count > 1 {
+        if bits.available() < 11 {
+            return Err(Error::FormatError);
+        }
+
+        let next_two_char_bits = bits.read_bits(11)? as usize;
+
+        result.push(to_alpha_numeric_char(next_two_char_bits / 45)?);
+        result.push(to_alpha_numeric_char(next_two_char_bits % 45)?);
+        count -= 2;
+    }
+
+    if count == 1 {
+        if bits.available() < 6 {
+            return Err(Error::FormatError);
+        }
+
+        result.push(to_alpha_numeric_char(bits.read_bits(6)? as usize)?);
+    }
+
+    if fc1_in_effect {
+        unimplemented!();
+    }
+
+    return Ok(());
+} 
 
 fn decode_numeric_segment(bits: &BitSource, result: &String, count: isize) -> Result<(), Error> {
     while count >= 3 {
