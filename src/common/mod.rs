@@ -1,6 +1,7 @@
 pub mod bitarray;
 pub mod bitmatrix;
 pub mod bitsource;
+pub mod decoder_result;
 pub mod detector;
 pub mod detector_result;
 pub mod grid_sampler;
