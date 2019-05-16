@@ -266,3 +266,25 @@ fn create_bitmatrix() {
     assert_eq!(x.height, 0);
     assert_eq!(x.row_size, 100);
 }
+
+#[test]
+fn test_get_set() {
+    let matrix = BitMatrix::new_with_dimension(33);
+
+    assert_eq!(matrix.height, 33);
+    for y in 0..33 {
+        for x in 0..33 {
+            if y * x % 3 == 0 {
+                matrix.set(x, y);
+            }
+        }
+    }
+
+    for y in 0..33 {
+        for x in 0..33 {
+            if y * x % 3 == 0 {
+                assert_eq!(y * x % 3 == 0, matrix.get(x, y));
+            }
+        }
+    }
+}
