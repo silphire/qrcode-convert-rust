@@ -1,12 +1,20 @@
 use crate::error::Error;
 
-pub struct BitSource {
-    bytes: Vec<u8>,
+pub struct BitSource<'a> {
+    bytes: &'a Vec<u8>,
     byte_offset: isize,
     bit_offset: isize,
 }
 
-impl BitSource {
+impl<'a> BitSource<'a> {
+    pub fn new(bytes: &'a Vec<u8>) -> BitSource {
+        return BitSource {
+            bytes: bytes,
+            byte_offset: 0,
+            bit_offset: 0,
+        };
+    }
+
     pub const fn get_byte_offset(&self) -> isize {
         return self.byte_offset;
     }
