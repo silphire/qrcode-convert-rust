@@ -19,4 +19,13 @@ impl ErrorCorrectionLevel {
         }
         return FOR_BITS[bits];
     }
+
+    pub fn as_str(&self) -> &str {
+        return match self {
+            &ErrorCorrectionLevel::M => "M",
+            &ErrorCorrectionLevel::L => "L",
+            &ErrorCorrectionLevel::H => "H",
+            &ErrorCorrectionLevel::Q => "Q",
+        }
+    }
 }
