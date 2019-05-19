@@ -1,8 +1,8 @@
-pub struct DecoderResult {
-    raw_bytes: Vec<u8>, 
+pub struct DecoderResult<'a> {
+    raw_bytes: &'a Vec<u8>,
     num_bits: isize,
     text: String,
-    byte_segments: Vec<Vec<u8>>,
+    byte_segments: &'a Vec<Vec<u8>>,
     ec_level: String,
     errors_corrected: isize,
     erasures: isize,
@@ -11,7 +11,21 @@ pub struct DecoderResult {
     structured_append_sequence_number: isize,
 }
 
-impl DecoderResult {
+impl<'a> DecoderResult<'a> {
+    pub fn new(raw_bytes: &'a Vec<u8>, text: &str, byte_segments: &'a Vec<Vec<u8>>, ec_level: &str, sa_sequence: isize, sa_parity: isize) -> DecoderResult<'a> {
+        return DecoderResult {
+            raw_bytes: raw_bytes,
+            num_bits: if raw_bytes.len() == 0 { 0 } else { 8 * raw_bytes.len() as isize },
+            text: text.to_string(),
+            byte_segments: byte_segments,
+            ec_level: ec_level.to_string(),
+            errors_corrected: 0,
+            erasures: 0,
+            structured_append_parity: sa_parity,
+            structured_append_sequence_number: sa_sequence,
+        };
+    }
+
     pub const fn get_raw_bytes(&self) -> &Vec<u8> {
         return &self.raw_bytes;
     }
