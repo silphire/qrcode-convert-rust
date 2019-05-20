@@ -1,8 +1,30 @@
+use std::collections::HashMap;
 use crate::common::bitsource::BitSource;
+use crate::common::decoder_result::DecoderResult;
+use crate::decode_hint_type::DecodeHintType;
 use crate::error::Error;
+use crate::qrcode::decoder::error_correction_level::ErrorCorrectionLevel;
+use crate::qrcode::decoder::version::Version;
 
 const ALPHANUMERIC_CHARS: &str = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:";
 const GB2312_SUBSET: isize = 1;
+
+pub fn decode<'a>(bytes: &'a Vec<u8>, version: &Version, ec_level: &ErrorCorrectionLevel, hits: &HashMap<DecodeHintType, u8>) -> Result<DecoderResult<'a>, Error> {
+    let bits = BitSource::new(bytes);
+    let result;
+    let byte_segments;
+    let symbol_sequence = -1;
+    let parity_data = -1;
+
+    return Ok(DecoderResult::new(
+        bytes,
+        result,
+        byte_segments,
+        ec_level.as_str(),
+        symbol_sequence,
+        parity_data,
+    ));
+}
 
 fn decode_byte_segment() -> Result<(), Error> {
     unimplemented!();
