@@ -3,8 +3,8 @@ use crate::result_point::ResultPoint;
 use crate::result_point::ResultPointTrait;
 use crate::common::detector::math_utils;
 
-pub struct WhiteRectangleDetector {
-    image: BitMatrix,
+pub struct WhiteRectangleDetector<'a> {
+    image: &'a BitMatrix,
     height: isize,
     width: isize,
     left_init: isize,
@@ -16,8 +16,8 @@ pub struct WhiteRectangleDetector {
 const INIT_SIZE: isize = 10;
 const CORR: f64 = 1.0;
 
-impl WhiteRectangleDetector {
-    pub fn new(image: BitMatrix, init_size: isize, x: isize, y: isize) -> Option<WhiteRectangleDetector> {
+impl<'a> WhiteRectangleDetector<'a> {
+    pub fn new(image: &'a BitMatrix, init_size: isize, x: isize, y: isize) -> Option<WhiteRectangleDetector> {
         let half_size = init_size / 2;
 
         if y < half_size || x < half_size {
@@ -29,35 +29,36 @@ impl WhiteRectangleDetector {
         let down_init = y + half_size;
         let right_init = x + half_size;
 
-        if down_init >= image.height || right_init >= image.width {
+        if down_init >= image.get_height() || right_init >= image.get_width() {
             return None;
         }
 
         return Some(WhiteRectangleDetector {
             image: image,
-            height: image.height,
-            width: image.width,
+            height: image.get_height(),
+            width: image.get_width(),
             left_init: left_init,
             up_init: up_init,
             right_init: right_init,
             down_init: down_init,
         });
     }
-    pub fn detect(&self) -> &Vec<ResultPoint> {
-        let left = self.left_init;
-        let right = self.right_init;
-        let up = self.up_init;
-        let down = self.down_init;
-        let size_exceeded = false;
-        let a_black_point_found_on_border = true;
 
-        let at_least_one_black_point_found_on_right = false;
-        let at_least_one_black_point_found_on_bottom = false;
-        let at_least_one_black_point_found_on_left = false;
-        let at_least_one_black_point_found_on_top = false;
+    pub fn detect(&self) -> Vec<ResultPoint> {
+        let mut left = self.left_init;
+        let mut right = self.right_init;
+        let mut up = self.up_init;
+        let mut down = self.down_init;
+        let mut size_exceeded = false;
+        let mut a_black_point_found_on_border = true;
+
+        let mut at_least_one_black_point_found_on_right = false;
+        let mut at_least_one_black_point_found_on_bottom = false;
+        let mut at_least_one_black_point_found_on_left = false;
+        let mut at_least_one_black_point_found_on_top = false;
 
         while a_black_point_found_on_border {
-            let right_border_not_white = true;
+            let mut right_border_not_white = true;
             while (right_border_not_white || !at_least_one_black_point_found_on_right) && right < self.width {
                 right_border_not_white = self.contains_black_point(up, down, right, false);
                 if right_border_not_white {
@@ -74,7 +75,7 @@ impl WhiteRectangleDetector {
                 break;
             }
 
-            let bottom_border_not_white = true;
+            let mut  bottom_border_not_white = true;
             while (bottom_border_not_white || !at_least_one_black_point_found_on_right) && down < self.height {
                 bottom_border_not_white = self.contains_black_point(left, right, down, true);
                 if bottom_border_not_white {
@@ -91,7 +92,7 @@ impl WhiteRectangleDetector {
                 break;
             }
 
-            let left_border_not_white = true;
+            let mut left_border_not_white = true;
             while (left_border_not_white || !at_least_one_black_point_found_on_right) && left >= 0 {
                 left_border_not_white = self.contains_black_point(up, down, left, true);
                 if left_border_not_white {
@@ -108,7 +109,7 @@ impl WhiteRectangleDetector {
                 break;
             }
 
-            let top_border_not_white = true;
+            let mut top_border_not_white = true;
             while (top_border_not_white || !at_least_one_black_point_found_on_top) && up >= 0 {
                 top_border_not_white = self.contains_black_point(left, right, up, true);
                 if top_border_not_white {
@@ -127,7 +128,7 @@ impl WhiteRectangleDetector {
         }
 
         if size_exceeded {
-            return &vec![];
+            return vec![];
         }
 
         let max_size = right - left;
@@ -146,7 +147,7 @@ impl WhiteRectangleDetector {
         }
 
         if z.is_none() {
-            return &vec![]; // TODO Err?
+            return vec![]; // TODO Err?
         }
 
         let mut t : Option<ResultPoint> = None;
@@ -162,7 +163,7 @@ impl WhiteRectangleDetector {
         }
 
         if t.is_none() {
-            return &vec![]; // TODO Err?
+            return vec![]; // TODO Err?
         }
 
         let mut x : Option<ResultPoint> = None;
@@ -178,7 +179,7 @@ impl WhiteRectangleDetector {
         }
 
         if x.is_none() {
-            return &vec![]; // TODO Err?
+            return vec![]; // TODO Err?
         }
 
         let mut y : Option<ResultPoint> = None;
@@ -194,7 +195,7 @@ impl WhiteRectangleDetector {
         }
 
         if y.is_none() {
-            return &vec![]; // TODO Err?
+            return vec![]; // TODO Err?
         }
 
         return self.center_edges(&y.unwrap(), &z.unwrap(), &x.unwrap(), &t.unwrap());
@@ -214,7 +215,7 @@ impl WhiteRectangleDetector {
         return None;
     }
 
-    fn center_edges(&self, y: &ResultPoint, z: &ResultPoint, x: &ResultPoint, t: &ResultPoint) -> &Vec<ResultPoint> {
+    fn center_edges(&self, y: &ResultPoint, z: &ResultPoint, x: &ResultPoint, t: &ResultPoint) -> Vec<ResultPoint> {
         let yi = y.get_x();
         let yj = y.get_y();
         let zi = z.get_x();
@@ -225,14 +226,14 @@ impl WhiteRectangleDetector {
         let tj = t.get_y();
 
         if yi < (self.width / 2) as f64 {
-            return &vec![
+            return vec![
                 ResultPoint{x: ti - CORR, y: tj + CORR},
                 ResultPoint{x: zi + CORR, y: zj + CORR},
                 ResultPoint{x: xi - CORR, y: xj - CORR},
                 ResultPoint{x: yi + CORR, y: yj - CORR},
             ];
         } else {
-            return &vec![
+            return vec![
                 ResultPoint{x: ti + CORR, y: tj + CORR},
                 ResultPoint{x: zi + CORR, y: zj - CORR},
                 ResultPoint{x: xi - CORR, y: xj + CORR},

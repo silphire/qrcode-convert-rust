@@ -11,7 +11,7 @@ pub struct PerspectiveTransform {
 }
 
 impl PerspectiveTransform {
-    pub const fn quadrilateral_to_quadrilateral(
+    pub fn quadrilateral_to_quadrilateral(
         x0: f64, y0: f64,
         x1: f64, y1: f64,
         x2: f64, y2: f64,
@@ -26,7 +26,7 @@ impl PerspectiveTransform {
         return stoq.times(&qtos);
     }
 
-    pub fn transform_points(&self, points: &[f64]) {
+    pub fn transform_points(&self, points: &mut [f64]) {
         let max_i = points.len();
         for i in (0..max_i).step_by(2) {
             let x = points[i];
@@ -39,7 +39,7 @@ impl PerspectiveTransform {
 
     // Is transform_points(&self, x_values: &[f64], y_values: &[f64]) needed?
 
-    pub const fn square_to_quadrilateral(x0: f64, y0: f64, x1: f64, y1: f64, x2: f64, y2: f64, x3: f64, y3: f64) -> PerspectiveTransform {
+    pub fn square_to_quadrilateral(x0: f64, y0: f64, x1: f64, y1: f64, x2: f64, y2: f64, x3: f64, y3: f64) -> PerspectiveTransform {
         let dx3 = x0 - x1 + x2 - x3;
         let dy3 = y0 - y1 + y2 - y3;
         if dx3 == 0.0 && dy3 == 0.0 {
@@ -76,11 +76,11 @@ impl PerspectiveTransform {
         }
     }
 
-    pub const fn quadrilateral_to_square(x0: f64, y0: f64, x1: f64, y1: f64, x2: f64, y2: f64, x3: f64, y3: f64) -> PerspectiveTransform {
+    pub fn quadrilateral_to_square(x0: f64, y0: f64, x1: f64, y1: f64, x2: f64, y2: f64, x3: f64, y3: f64) -> PerspectiveTransform {
         return Self::square_to_quadrilateral(x0, y0, x1, y1, x2, y2, x3, y3).build_adjoint();
     }
 
-    pub const fn build_adjoint(&self) -> PerspectiveTransform {
+    pub fn build_adjoint(&self) -> PerspectiveTransform {
         return PerspectiveTransform {
             a11: self.a22 * self.a33 - self.a23 * self.a32,
             a21: self.a23 * self.a31 - self.a21 * self.a33,
@@ -94,7 +94,7 @@ impl PerspectiveTransform {
         };
     }
 
-    pub const fn times(&self, other: &PerspectiveTransform) -> PerspectiveTransform {
+    pub fn times(&self, other: &PerspectiveTransform) -> PerspectiveTransform {
         return PerspectiveTransform {
             a11: self.a11 * other.a11 + self.a21 * other.a12 + self.a31 * other.a13,
             a21: self.a11 * other.a21 + self.a21 * other.a22 + self.a31 * other.a23,

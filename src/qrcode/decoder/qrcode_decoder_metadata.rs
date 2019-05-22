@@ -9,13 +9,11 @@ impl QRCodeDecoderMetaData {
         return self.mirrored;
     }
 
-    pub fn apply_mirrored_correction(&self, points: &[Box<ResultPointTrait>]) {
+    pub fn apply_mirrored_correction(&self, points: &mut [Box<ResultPointTrait>]) {
         if !self.is_mirrored() || points.len() < 3 {
             return;
         }
 
-        let bottom_left = points[0];
-        points[0] = points[2];
-        points[2] = bottom_left;
+        points.swap(0, 2);
     }
 }

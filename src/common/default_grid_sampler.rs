@@ -13,7 +13,7 @@ impl GridSampler for DefaultGridSampler {
         }
 
         let bits = BitMatrix::new(dimension_x, dimension_y);
-        let points: Vec<f64> = Vec::<f64>::with_capacity(2 * dimension_x as usize);
+        let mut points: Vec<f64> = Vec::<f64>::with_capacity(2 * dimension_x as usize);
         for y in 0..dimension_y {
             let max = points.len();
             let i_value = y as f64 + 0.5;
@@ -21,8 +21,8 @@ impl GridSampler for DefaultGridSampler {
                 points[x] = (x / 2) as f64 + 0.5;
                 points[x + 1] = i_value;
             }
-            transform.transform_points(&points);
-            GridSampler::check_and_nudge_points(image, &points);
+            transform.transform_points(&mut points);
+            // TODO GridSampler::check_and_nudge_points(image, &points)?;
 
             unimplemented!();
         }
@@ -32,7 +32,7 @@ impl GridSampler for DefaultGridSampler {
 }
 
 impl DefaultGridSampler {
-    pub fn new() -> DefaultGridSampler where Self: Sized {
+    pub const fn new() -> DefaultGridSampler where Self: Sized {
         return DefaultGridSampler {};
     }
 }
