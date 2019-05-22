@@ -1,3 +1,4 @@
+#[derive(Clone, Copy, Debug)]
 pub enum ErrorCorrectionLevel {
     L = 0x01,
     M = 0x00,

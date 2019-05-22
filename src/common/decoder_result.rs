@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct DecoderResult<'a> {
     raw_bytes: &'a Vec<u8>,
     num_bits: isize,
@@ -34,7 +35,7 @@ impl<'a> DecoderResult<'a> {
         return self.num_bits;
     }
     
-    pub fn set_num_bits(&self, num_bits: isize) {
+    pub fn set_num_bits(&mut self, num_bits: isize) {
         self.num_bits = num_bits;
     }
 
@@ -50,15 +51,15 @@ impl<'a> DecoderResult<'a> {
         return &self.ec_level;
     }
 
-    pub fn set_ec_level(&self, ec_level: &String) {
-        self.ec_level = *ec_level;
+    pub fn set_ec_level(&mut self, ec_level: &String) {
+        self.ec_level = ec_level.clone();
     }
 
     pub const fn get_errors_corrected(&self) -> isize {
         return self.errors_corrected;
     }
 
-    pub fn set_errors_corrected(&self, errors_corrected: isize) {
+    pub fn set_errors_corrected(&mut self, errors_corrected: isize) {
         self.errors_corrected = errors_corrected;
     }
 
@@ -66,7 +67,7 @@ impl<'a> DecoderResult<'a> {
         return self.erasures;
     }
 
-    pub fn set_erasures(&self, erasures: isize) {
+    pub fn set_erasures(&mut self, erasures: isize) {
         self.erasures = erasures;
     }
 

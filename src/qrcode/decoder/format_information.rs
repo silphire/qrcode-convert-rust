@@ -54,8 +54,8 @@ impl FormatInformation {
     }
 
     fn do_decode_format_information(masked_format_info_1: isize, masked_format_info_2: isize) -> Option<FormatInformation> {
-        let best_difference = std::isize::MAX;
-        let best_format_info = 0;
+        let mut best_difference = std::isize::MAX;
+        let mut best_format_info = 0;
 
         for decode_info in &FORMAT_INFO_DECODE_LOOKUP {
             let target_info = decode_info[0];
@@ -63,7 +63,7 @@ impl FormatInformation {
                 return Some(FormatInformation::new(decode_info[1]));
             }
 
-            let bits_difference = Self::num_bits_differing(masked_format_info_1, target_info);
+            let mut bits_difference = Self::num_bits_differing(masked_format_info_1, target_info);
             if bits_difference < best_difference {
                 best_format_info = decode_info[1];
                 best_difference = bits_difference;

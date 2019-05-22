@@ -1,5 +1,6 @@
 use crate::common::detector::math_utils;
 
+#[derive(Copy, Clone, Debug)]
 pub struct ResultPoint {
     x: f64,
     y: f64,
