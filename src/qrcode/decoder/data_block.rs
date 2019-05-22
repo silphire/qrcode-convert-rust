@@ -15,14 +15,14 @@ impl DataBlock {
 
         let ec_blocks = version.get_ec_blocks_for_level(ec_level);
 
-        let total_blocks = 0;
+        let mut total_blocks = 0;
         let ec_block_array = ec_blocks.get_ec_blocks();
         for ec_block in ec_block_array {
             total_blocks += ec_block.get_count();
         }
 
-        let result = vec![];
-        let num_result_blocks = 0;
+        let mut result = vec![];
+        let mut num_result_blocks = 0;
         for ec_block in ec_block_array {
             for i in 0..ec_block.get_count() {
                 let num_data_codewords = ec_block.get_data_codewords();
@@ -37,7 +37,7 @@ impl DataBlock {
         }
 
         let shoter_blocks_total_codewords = result[0].codewords.len();
-        let longer_blocks_start_at = result.len() - 1;
+        let mut longer_blocks_start_at = result.len() - 1;
         while longer_blocks_start_at >= 0 {
             let num_codewords = result[longer_blocks_start_at].codewords.len();
             if num_codewords == shoter_blocks_total_codewords {
@@ -48,7 +48,7 @@ impl DataBlock {
         longer_blocks_start_at -= 1;
 
         let shorter_blocks_num_data_codewords = shoter_blocks_total_codewords - ec_blocks.get_ec_codewords_per_block() as usize;
-        let raw_codewords_offset = 0;
+        let mut raw_codewords_offset = 0;
         for i in 0..shorter_blocks_num_data_codewords {
             for j in 0..num_result_blocks {
                 result[j].codewords[i] = raw_codewords[raw_codewords_offset];

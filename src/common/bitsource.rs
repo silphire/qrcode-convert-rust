@@ -23,12 +23,13 @@ impl<'a> BitSource<'a> {
         return self.bit_offset;
     }
 
-    pub fn read_bits(&self, num_bits: isize) -> Result<isize, Error> {
+    pub fn read_bits(&mut self, num_bits: isize) -> Result<isize, Error> {
+        let mut num_bits = num_bits;
         if num_bits < 1 || num_bits > 32 || num_bits > self.available() {
             return Err(Error::IllegalArgumentError);
         }
 
-        let result: isize = 0;
+        let mut result: isize = 0;
 
         if self.bit_offset > 0 {
             let bits_left = 8 - self.bit_offset;
@@ -62,7 +63,7 @@ impl<'a> BitSource<'a> {
         return Ok(result);
     }
 
-    pub const fn available(&self) -> isize {
+    pub fn available(&self) -> isize {
         return 8 * (self.bytes.len() as isize - self.byte_offset) - self.bit_offset;
     }
 }

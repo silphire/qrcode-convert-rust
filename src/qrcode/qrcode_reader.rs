@@ -35,9 +35,9 @@ impl QRCodeReader {
         // TODO implement
         return BitMatrix {
             bits: vec![],
-            width: image.width,
-            height: image.height,
-            row_size: image.row_size,
+            width: image.get_width(),
+            height: image.get_height(),
+            row_size: image.get_rowsize(),
         };
     }
 
@@ -47,7 +47,7 @@ impl QRCodeReader {
         let mut in_black = true;
         let mut transition = 0;
 
-        while x < image.width && y < image.height {
+        while x < image.get_width() && y < image.get_height() {
             if in_black != image.get(x, y) {
                 transition += 1;
                 if transition == 5 {
@@ -59,7 +59,7 @@ impl QRCodeReader {
             y += 1;
         }
 
-        if x == image.width || y == image.height {
+        if x == image.get_width() || y == image.get_height() {
             // throw not found
         }
 

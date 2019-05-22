@@ -18,8 +18,8 @@ impl BitMatrixParser {
     }
 
     pub fn read_format_information(&self) -> &FormatInformation {
-        if self.parsed_format_info.is_some() {
-            return &self.parsed_format_info.unwrap();
+        if let Some(parsed_format_info) =  &self.parsed_format_info {
+            return &parsed_format_info;
         }
 
         let mut format_info_bits_1 = 0;
