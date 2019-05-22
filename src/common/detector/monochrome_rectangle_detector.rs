@@ -7,11 +7,11 @@ pub struct MonochromeRectangleDetector {
 }
 
 impl MonochromeRectangleDetector {
-    pub fn detect(&self) -> Option<Vec<&ResultPointTrait>> {
+    pub fn detect(&self) -> Option<Vec<impl ResultPointTrait>> {
         const MAX_MODULES: isize = 32;
 
-        let height = self.image.height;
-        let width = self.image.width;
+        let height = self.image.get_height();
+        let width = self.image.get_width();
         let half_height = height / 2;
         let half_width = width / 2;
         let delta_y = std::cmp::max(1, height / MAX_MODULES * 8) as isize;
@@ -100,10 +100,10 @@ impl MonochromeRectangleDetector {
         top: isize,
         bottom: isize,
         max_white_run: isize
-    ) -> Option<&ResultPointTrait> {
-        let mut last_range: Option<Vec<isize>>;
-        let y = center_y;
-        let x = center_x;
+    ) -> Option<impl ResultPointTrait> {
+        let mut last_range: Option<Vec<isize>> = None;
+        let mut y = center_y;
+        let mut x = center_x;
         while y < bottom && y >= top && x < right && x >= left {
             let range = if delta_x == 0 {
                 self.black_white_range(y, max_white_run, left, right, true)
@@ -118,10 +118,11 @@ impl MonochromeRectangleDetector {
 
                 if delta_x == 0 {
                     let last_y = y - delta_y;
-                    if last_range.unwrap()[0] < center_x {
-                        if last_range.unwrap()[1] > center_x {
-                            return Some(&ResultPoint {
-                                x: last_range.unwrap()[(if delta_y > 0 {0} else {1})] as f64,
+                    let last_range = last_range.unwrap();
+                    if last_range[0] < center_x {
+                        if last_range[1] > center_x {
+                            return Some(ResultPoint {
+                                x: last_range[(if delta_y > 0 {0} else {1})] as f64,
                                 y: last_y as f64,
                             });
                         }
@@ -147,7 +148,7 @@ impl MonochromeRectangleDetector {
     ) -> Option<Vec<isize>> {
         let center = (min_dim + max_dim) / 2;
 
-        let start = center;
+        let mut start = center;
         while start >= min_dim {
             if if horizontal { self.image.get(start, fixed_dimension) } else { self.image.get(fixed_dimension, start) } {
                 start += 1;
@@ -167,7 +168,7 @@ impl MonochromeRectangleDetector {
         }
         start += 1;
 
-        let end = center;
+        let mut end = center;
         while end < max_dim {
             if if horizontal { self.image.get(end, fixed_dimension)}  else {self.image.get(fixed_dimension, end)} {
                 end += 1;

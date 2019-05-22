@@ -1,5 +1,6 @@
 use crate::result_point::ResultPointTrait;
 
+#[derive(Clone, Copy)]
 pub struct AlignmentPattern {
     pub x: f64,
     pub y: f64,
