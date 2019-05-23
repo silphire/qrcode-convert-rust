@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate lazy_static;
+
 pub mod common;
 pub mod reader;
 pub mod decode_hint_type;
