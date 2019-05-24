@@ -1,3 +1,5 @@
+use crate::error::Error;
+
 #[derive(Clone, Copy, Debug)]
 pub enum ErrorCorrectionLevel {
     L = 0x01,
@@ -14,11 +16,11 @@ const FOR_BITS: [ErrorCorrectionLevel; 4] = [
 ];
 
 impl ErrorCorrectionLevel {
-    pub fn for_bits(bits: usize) -> ErrorCorrectionLevel {
+    pub fn for_bits(bits: usize) -> Result<ErrorCorrectionLevel, Error> {
         if bits < 0 && bits >= FOR_BITS.len() {
-            unimplemented!();
+            return Err(Error::IllegalArgumentError);
         }
-        return FOR_BITS[bits];
+        return Ok(FOR_BITS[bits]);
     }
 
     pub fn as_str(&self) -> &str {

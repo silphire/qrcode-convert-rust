@@ -44,7 +44,7 @@ pub struct FormatInformation {
 impl FormatInformation {
     fn new(format_info: isize) -> FormatInformation {
         return FormatInformation {
-            error_correction_level: ErrorCorrectionLevel::for_bits(((format_info >> 3) & 0x03) as usize),
+            error_correction_level: ErrorCorrectionLevel::for_bits(((format_info >> 3) & 0x03) as usize).unwrap(),
             data_mask: (format_info & 0x07) as u8
         }
     }
