@@ -3,10 +3,10 @@ use crate::error::Error;
 
 #[derive(Clone)]
 pub struct BitMatrix {
-    pub width: isize,
-    pub height: isize,
-    pub row_size: isize,
-    pub bits: Vec<i32>,
+    width: isize,
+    height: isize,
+    row_size: isize,
+    bits: Vec<i32>,
 }
 
 impl BitMatrix {
@@ -37,7 +37,7 @@ impl BitMatrix {
         let height = image.len() as isize;
         let width = image[0].len() as isize;
 
-        let bits = BitMatrix::new(width, height);
+        let mut bits = BitMatrix::new(width, height);
         for i in 0..height {
             let image_i = image[i as usize];
             for j in 0..width {
@@ -54,7 +54,7 @@ impl BitMatrix {
         unimplemented!();
     }
 
-    pub const fn get(&self, x: isize, y: isize) -> bool {
+    pub fn get(&self, x: isize, y: isize) -> bool {
         let offset = y * self.row_size + (x / 32);
         return ((self.bits[offset as usize] >> (x & 0x1f)) & 1) != 0;
     }
@@ -79,10 +79,10 @@ impl BitMatrix {
             return Err(Error::IllegalArgumentError);
         }
 
-        let mut row_array = BitArray::new_with_size(self.width);
+        let row_array = Box::new(BitArray::new_with_size(self.width));
         for y in 0..self.height {
             let offset = y * self.row_size;
-            let row = mask.get_row(y, Some(Box::new(row_array))).get_bit_array();
+            let row = mask.get_row(y, Some(row_array)).get_bit_array();
             for x in 0..self.row_size {
                 self.bits[(offset + x) as usize] ^= row[x as usize];
             }
@@ -120,12 +120,16 @@ impl BitMatrix {
 
     pub fn get_row(&self, y: isize, row: Option<Box<BitArray>>) -> Box<BitArray> {
 
-        let new_row: Box<BitArray>;
-        if row.is_none() || row.unwrap().get_size() < self.width {
-            new_row = Box::new(BitArray::new_with_size(self.width));
+        let mut new_row: Box<BitArray>;
+        if let Some(row) = row {
+            if row.get_size() < self.width {
+                new_row = Box::new(BitArray::new_with_size(self.width));
+            } else {
+                new_row = row;
+                new_row.clear();
+            }
         } else {
-            new_row = row.unwrap();
-            new_row.clear();
+            new_row = Box::new(BitArray::new_with_size(self.width));
         }
 
         let offset = y * self.row_size;
@@ -137,7 +141,12 @@ impl BitMatrix {
     }
 
     pub fn set_row(&mut self, y: isize, row: &BitArray) {
-        unimplemented!();
+        let src = row.get_bit_array();
+        let mut pos = (y * self.row_size) as usize;
+        for i in 0..self.row_size {
+            self.bits[pos] = src[i as usize];
+            pos += 1;
+        }
     }
 
     pub fn rotate_180(&mut self) {
@@ -269,7 +278,7 @@ fn create_bitmatrix() {
 
 #[test]
 fn test_get_set() {
-    let matrix = BitMatrix::new_with_dimension(33);
+    let mut matrix = BitMatrix::new_with_dimension(33);
 
     assert_eq!(matrix.height, 33);
     for y in 0..33 {
