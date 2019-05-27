@@ -12,8 +12,9 @@ static VERSION_DECODE_INFO: [isize; 34] = [
     0x2542E, 0x26A64, 0x27541, 0x28C69
 ];
 
-static VERSIONS: Vec<Version> = build_versions();
+//static VERSIONS: Vec<Version> = build_versions();
 
+#[derive(Clone)]
 pub struct Version {
     version_number: isize,
     alignment_pattern_centers: Vec<isize>,
@@ -26,11 +27,11 @@ impl Version {
         return self.version_number;
     }
 
-    pub const fn get_alignment_pattern_centers(&self) -> Vec<isize> {
-        return self.alignment_pattern_centers;
+    pub const fn get_alignment_pattern_centers(&self) -> &Vec<isize> {
+        return &self.alignment_pattern_centers;
     }
 
-    pub fn get_provisional_version_for_dimension(dimension: isize) -> Result<Version, Error> {
+    pub fn get_provisional_version_for_dimension(dimension: isize) -> Result<&'static Version, Error> {
         if dimension % 4 != 1 {
             return Err(Error::FormatError);
         }
@@ -38,26 +39,27 @@ impl Version {
         return match Self::get_version_for_number((dimension - 17) / 4) {
             Ok(version) => Ok(version),
             Err(Error::IllegalArgumentError) => Err(Error::FormatError),
+            _ => Err(Error::FormatError),  // TODO should return original error
         };
     }
 
-    pub fn get_version_for_number(version_number: isize) -> Result<Version, Error> {
+    pub fn get_version_for_number(version_number: isize) -> Result<&'static Version, Error> {
         if version_number < 1 || version_number > 40 {
             return Err(Error::IllegalArgumentError);
         }
 
-        return Ok(VERSIONS[(version_number - 1) as usize]);
+        return Ok(&VERSIONS[(version_number - 1) as usize]);
     }
 
-    fn decode_version_information(version_bits: isize) -> Option<Version> {
-        let best_difference;   // TODO
-        let best_version: isize = 0;
+    fn decode_version_information(version_bits: isize) -> Option<&'static Version> {
+        let mut best_difference = std::isize::MAX;
+        let mut best_version: isize = 0;
         for i in 0..VERSION_DECODE_INFO.len() {
             let target_version = VERSION_DECODE_INFO[i];
             if target_version == version_bits {
                 return match Self::get_version_for_number((i + 7) as isize) {
                     Ok(version) => Some(version),
-                    Err(error) => None,
+                    Err(_) => None,
                 };
             }
 
@@ -71,7 +73,7 @@ impl Version {
         if best_difference <= 3 {
             return match Self::get_version_for_number(best_version) {
                 Ok(version) => Some(version),
-                Err(error) => None,
+                Err(_) => None,
             };
         }
 
@@ -82,16 +84,16 @@ impl Version {
         return self.total_codewords;
     }
 
-    pub const fn get_dimension_for_version(&self) -> isize {
+    pub fn get_dimension_for_version(&self) -> isize {
         return 17 + 4 * self.get_version_number();
     }
 
-    pub const fn get_ec_blocks_for_level(&self, ec_level: &ErrorCorrectionLevel) -> ECBlocks {
-        return self.ec_blocks[*ec_level as usize];
+    pub fn get_ec_blocks_for_level(&self, ec_level: &ErrorCorrectionLevel) -> &ECBlocks {
+        return &self.ec_blocks[*ec_level as usize];
     }
 
     pub fn new(version_number: isize, alignment_pattern_centers: Vec<isize>, ec_blocks: Vec<ECBlocks>) -> Version {
-        let total = 0;
+        let mut total = 0;
         let ec_codewords = ec_blocks[0].get_ec_codewords_per_block();
         let ecb_array = ec_blocks[0].get_ec_blocks();
         for ec_block in ecb_array {
@@ -107,6 +109,7 @@ impl Version {
     }
 }
 
+#[derive(Clone)]
 pub struct ECBlocks {
     ec_codewords_per_block: isize,
     ec_blocks: Vec<ECB>,
@@ -124,15 +127,15 @@ impl ECBlocks {
         return self.ec_codewords_per_block;
     }
 
-    pub const fn get_num_blocks(&self) -> isize {
-        let total = 0;
+    pub fn get_num_blocks(&self) -> isize {
+        let mut total = 0;
         for ec_block in self.get_ec_blocks() {
             total += ec_block.get_count();
         }
         return total;
     }
 
-    pub const fn get_total_ec_codewords(&self) -> isize {
+    pub fn get_total_ec_codewords(&self) -> isize {
         return self.get_ec_codewords_per_block() * self.get_num_blocks();
     }
 
@@ -141,6 +144,7 @@ impl ECBlocks {
     }
 }
 
+#[derive(Copy, Clone)]
 struct ECB {
     count: isize,
     data_codewords: isize,
@@ -163,8 +167,8 @@ impl ECB {
     }
 }
 
-fn build_versions() -> Vec<Version> {
-    return vec![
+lazy_static! {
+    static ref VERSIONS: Vec<Version> = vec![
         Version::new(1, vec![], vec![
             ECBlocks::new(7, vec![ECB::new(1, 19)]),
             ECBlocks::new(10, vec![ECB::new(1, 16)]),
