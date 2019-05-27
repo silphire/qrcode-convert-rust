@@ -23,6 +23,6 @@ impl DataMask {
     }
 
     pub fn is_masked(&self, i: isize, j: isize) -> bool {
-        unimplemented!();
+        return (i + j) & 0x01 == 0;
     }
 }
