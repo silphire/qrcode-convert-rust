@@ -15,16 +15,18 @@ impl DataBlock {
 
         let ec_blocks = version.get_ec_blocks_for_level(ec_level);
 
-        let mut total_blocks = 0;
         let ec_block_array = ec_blocks.get_ec_blocks();
+        /* unused
+        let mut total_blocks = 0;
         for ec_block in ec_block_array {
             total_blocks += ec_block.get_count();
         }
+        */
 
         let mut result = vec![];
         let mut num_result_blocks = 0;
         for ec_block in ec_block_array {
-            for i in 0..ec_block.get_count() {
+            for _ in 0..ec_block.get_count() {
                 let num_data_codewords = ec_block.get_data_codewords();
                 let num_block_codewords = ec_blocks.get_ec_codewords_per_block() + num_data_codewords;
                 let data_block = DataBlock {
