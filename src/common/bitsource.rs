@@ -35,7 +35,7 @@ impl<'a> BitSource<'a> {
             let bits_left = 8 - self.bit_offset;
             let to_read = if num_bits < bits_left { num_bits } else { bits_left };
             let bits_to_not_read = bits_left - to_read;
-            let mask = (0xff >> (8 - to_read)) << bits_to_not_read;
+            let _mask = (0xff >> (8 - to_read)) << bits_to_not_read;
             
             num_bits -= to_read;
             self.bit_offset += to_read;

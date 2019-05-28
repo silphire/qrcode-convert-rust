@@ -22,7 +22,7 @@ impl GridSampler for DefaultGridSampler {
                 points[x + 1] = i_value;
             }
             transform.transform_points(&mut points);
-            // TODO GridSampler::check_and_nudge_points(image, &points)?;
+            // TODO GridSampler::check_and_nudge_points(image, points.as_mut_slice())?;
 
             unimplemented!();
         }
