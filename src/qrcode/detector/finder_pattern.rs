@@ -1,5 +1,6 @@
 use crate::result_point::ResultPointTrait;
 
+#[derive(Clone)]
 pub struct FinderPattern {
     x: f64, 
     y: f64,
