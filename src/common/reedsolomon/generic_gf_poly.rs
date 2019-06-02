@@ -42,4 +42,26 @@ impl GenericGFPoly {
     pub fn get_coefficient(&self, degree: isize) -> isize {
         return self.coefficients[self.coefficients.len() - 1 - degree as usize];
     }
+
+    pub fn evaluate_at(&self, a: isize) -> isize {
+        if a == 0 {
+            return self.get_coefficient(0);
+        }
+
+        if a == 1 {
+            let mut result = 0;
+            for coefficient in &self.coefficients {
+                result = GenericGF::add_or_subtract(result, *coefficient);
+            }
+
+            return result;
+        }
+
+        let mut result = self.coefficients[0];
+        let size = self.coefficients.len();
+        for i in 1..size {
+            result = GenericGF::add_or_subtract(self.field.multiply(a, result), self.coefficients[i]);
+        }
+        return result;
+    }
 }
