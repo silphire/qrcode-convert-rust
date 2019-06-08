@@ -39,6 +39,10 @@ impl GenericGFPoly {
         return self.coefficients.len() as isize - 1;
     }
 
+    pub fn is_zero(&self) -> bool {
+        return self.coefficients[0] == 0;
+    }
+
     pub fn get_coefficient(&self, degree: isize) -> isize {
         return self.coefficients[self.coefficients.len() - 1 - degree as usize];
     }
@@ -63,5 +67,40 @@ impl GenericGFPoly {
             result = GenericGF::add_or_subtract(self.field.multiply(a, result), self.coefficients[i]);
         }
         return result;
+    }
+
+    pub fn add_or_subtract<'a>(&'a self, other: &'a GenericGFPoly) -> Result<GenericGFPoly, Error> {
+        // TODO
+        //if self.field == other.field {
+        //    return Err(Error::IllegalArgumentError);
+        //}
+
+        if self.is_zero() {
+            return Ok(*other.clone());
+        }
+
+        if other.is_zero() {
+            return Ok(*self.clone());
+        }
+
+        let mut smaller_coefficients;
+        let mut larger_coefficients;
+        if self.coefficients.len() <= other.coefficients.len() {
+            smaller_coefficients = &self.coefficients;
+            larger_coefficients = &other.coefficients;
+        } else {
+            smaller_coefficients = &other.coefficients;
+            larger_coefficients = &self.coefficients;
+        }
+
+        let mut sum_diff = vec![0; larger_coefficients.len()];
+        let length_diff = larger_coefficients.len() - smaller_coefficients.len();
+        // TODO arraycopy
+
+        for i in length_diff..larger_coefficients.len() {
+            sum_diff[i] = GenericGF::add_or_subtract(smaller_coefficients[i - length_diff], larger_coefficients[i]);
+        }
+
+        return GenericGFPoly::new(self.field, sum_diff);
     }
 }
