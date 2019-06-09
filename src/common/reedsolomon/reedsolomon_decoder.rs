@@ -1,8 +1,9 @@
+use crate::common::reedsolomon::generic_gf::GenericGF;
 use crate::common::reedsolomon::generic_gf_poly::GenericGFPoly;
 use crate::common::reedsolomon::reedsolomon_error::ReedSolomonError;
 
 pub struct ReedSolomonDecoder {
-    generic_gf: u8, // TODO GenericGF
+    field: GenericGF,
 }
 
 impl ReedSolomonDecoder {
@@ -20,7 +21,14 @@ impl ReedSolomonDecoder {
         unimplemented!();
     }
 
-    fn find_error_locations(error_locator: &GenericGFPoly) -> Result<Vec<isize>, ReedSolomonError> {
+    fn find_error_locations(&self, error_locator: &GenericGFPoly) -> Result<Vec<isize>, ReedSolomonError> {
+        let num_errors = error_locator.get_degree();
+        if num_errors == 1 {
+            return Ok(vec![error_locator.get_coefficient(1)]);
+        }
+
+        let mut e = 0;
+
         unimplemented!();
     }
 
