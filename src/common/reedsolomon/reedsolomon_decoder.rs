@@ -7,9 +7,9 @@ pub struct ReedSolomonDecoder {
 }
 
 impl ReedSolomonDecoder {
-    pub fn new() -> ReedSolomonDecoder {
+    pub fn new(field: GenericGF) -> ReedSolomonDecoder {
         return ReedSolomonDecoder {
-            generic_gf: 0,
+            field: field,
         }
     }
 
@@ -27,9 +27,22 @@ impl ReedSolomonDecoder {
             return Ok(vec![error_locator.get_coefficient(1)]);
         }
 
+        let mut result = vec![0; num_errors as usize];
         let mut e = 0;
 
-        unimplemented!();
+        for i in 1..self.field.get_size() {
+            if e >= num_errors {
+                break;
+            }
+            result[e as usize] = self.field.inverse(i);
+            e += 1;
+        }
+
+        if e != num_errors {
+            return Err(ReedSolomonError::ReedSolomonError);
+        }
+
+        return Ok(result);
     }
 
     fn find_error_magnitudes(error_evaluator: &GenericGFPoly, error_locations: &Vec<isize>) -> Vec<isize> {

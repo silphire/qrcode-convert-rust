@@ -22,4 +22,8 @@ impl GenericGF {
 
         return self.exp_table[((self.log_table[a as usize] + self.log_table[b as usize]) % (self.size - 1)) as usize];
     }
+
+    pub const fn get_size(&self) -> isize {
+        return self.size;
+    }
 }
