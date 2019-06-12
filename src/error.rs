@@ -6,4 +6,5 @@ pub enum Error {
     ReaderError,
     WriterError,
     IllegalArgumentError,
+    ArithmeticError,
 }

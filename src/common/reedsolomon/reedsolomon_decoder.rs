@@ -34,7 +34,11 @@ impl ReedSolomonDecoder {
             if e >= num_errors {
                 break;
             }
-            result[e as usize] = self.field.inverse(i);
+            if let Ok(r) = self.field.inverse(i) {
+                result[e as usize] = r;
+            } else {
+                return Err(ReedSolomonError::ReedSolomonError);
+            }
             e += 1;
         }
 

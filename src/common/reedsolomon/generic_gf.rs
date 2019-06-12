@@ -1,4 +1,5 @@
 use crate::common::reedsolomon::generic_gf_poly::GenericGFPoly;
+use crate::error::Error;
 
 pub struct GenericGF {
     exp_table: Vec<isize>,
@@ -13,6 +14,13 @@ pub struct GenericGF {
 impl GenericGF {
     pub fn add_or_subtract(a: isize, b: isize) -> isize {
         return a ^ b;
+    }
+
+    pub fn inverse(&self, a: isize) -> Result<isize, Error> {
+        if a == 0 {
+            return Err(Error::ArithmeticError);
+        }
+        return Ok(self.exp_table[(self.size - self.log_table[a as usize] - 1) as usize]);
     }
 
     pub fn multiply(&self, a: isize, b: isize) -> isize {
