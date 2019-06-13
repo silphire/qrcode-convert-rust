@@ -11,7 +11,18 @@ pub struct GenericGF {
     generator_base: isize,
 }
 
+const AZTEC_DATA_12: GenericGF = GenericGF::new(0x1069, 4096, 1);
+const AZTEC_DATA_10: GenericGF = GenericGF::new(0x409,  1024, 1);
+const AZTEC_DATA_6:  GenericGF = GenericGF::new(0x43,   64, 1);
+const AZTEC_DATA_PARAM: GenericGF = GenericGF::new(0x13, 16, 1);
+const QR_CODE_FIELD_256: GenericGF = GenericGF::new(0x011D, 256, 0);
+const DATA_MATRIX_FIELD_256: GenericGF = GenericGF::new(0x012D, 256, 1);
+
 impl GenericGF {
+    pub fn new(primitive: isize, size: isize, b: isize) -> GenericGF {
+        unimplemented!();
+    }
+
     pub fn add_or_subtract(a: isize, b: isize) -> isize {
         return a ^ b;
     }
