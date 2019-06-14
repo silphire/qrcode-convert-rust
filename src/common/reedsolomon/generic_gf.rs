@@ -27,6 +27,17 @@ impl GenericGF {
         return a ^ b;
     }
 
+    pub fn exp(&self, a: isize) -> isize {
+        return self.exp_table[a as usize];
+    }
+
+    pub fn log(&self, a: isize) -> Result<isize, Error> {
+        if a == 0 {
+            return Err(Error::IllegalArgumentError);
+        }
+        return Ok(self.log_table[a as usize]);
+    }
+
     pub fn inverse(&self, a: isize) -> Result<isize, Error> {
         if a == 0 {
             return Err(Error::ArithmeticError);
