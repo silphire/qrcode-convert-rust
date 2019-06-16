@@ -1,6 +1,15 @@
 use crate::common::reedsolomon::generic_gf_poly::GenericGFPoly;
 use crate::error::Error;
 
+lazy_static! {
+    pub static ref AZTEC_DATA_12: GenericGF = GenericGF::new(0x1069, 4096, 1);
+    pub static ref AZTEC_DATA_10: GenericGF = GenericGF::new(0x409,  1024, 1);
+    pub static ref AZTEC_DATA_6:  GenericGF = GenericGF::new(0x43,   64, 1);
+    pub static ref AZTEC_DATA_PARAM: GenericGF = GenericGF::new(0x13, 16, 1);
+    pub static ref QR_CODE_FIELD_256: GenericGF = GenericGF::new(0x011D, 256, 0);
+    pub static ref DATA_MATRIX_FIELD_256: GenericGF = GenericGF::new(0x012D, 256, 1);
+}
+
 pub struct GenericGF {
     exp_table: Vec<isize>,
     log_table: Vec<isize>,
@@ -12,12 +21,6 @@ pub struct GenericGF {
 }
 
 impl GenericGF {
-    pub const AZTEC_DATA_12: GenericGF = GenericGF::new(0x1069, 4096, 1);
-    pub const AZTEC_DATA_10: GenericGF = GenericGF::new(0x409,  1024, 1);
-    pub const AZTEC_DATA_6:  GenericGF = GenericGF::new(0x43,   64, 1);
-    pub const AZTEC_DATA_PARAM: GenericGF = GenericGF::new(0x13, 16, 1);
-    pub const QR_CODE_FIELD_256: GenericGF = GenericGF::new(0x011D, 256, 0);
-    pub const DATA_MATRIX_FIELD_256: GenericGF = GenericGF::new(0x012D, 256, 1);
 
     pub fn new(primitive: isize, size: isize, b: isize) -> GenericGF {
         unimplemented!();

@@ -1,6 +1,7 @@
 use std::any::Any;
 use std::collections::HashMap;
 use crate::decode_hint_type::DecodeHintType;
+use crate::common::reedsolomon::generic_gf;
 use crate::common::reedsolomon::generic_gf::GenericGF;
 use crate::qrcode::decoder::bitmatrix_parser::BitMatrixParser;
 use crate::common::reedsolomon::reedsolomon_decoder::ReedSolomonDecoder;
@@ -12,7 +13,7 @@ pub struct Decoder {
 impl Decoder {
     pub fn new() -> Decoder {
         return Decoder {
-            rs_decoder: ReedSolomonDecoder::new(GenericGF::QR_CODE_FIELD_256),
+            rs_decoder: ReedSolomonDecoder::new(generic_gf::QR_CODE_FIELD_256),
         };
     }
 
